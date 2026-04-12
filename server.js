@@ -1,4 +1,5 @@
 const express = require('express');
+const nodemailer = require('nodemailer');
 const app = express();
 
 // CORS middleware
@@ -13,6 +14,162 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 let orders = [];
+
+// ========== EMAIL CONFIGURATION ==========
+// Sending email account (where emails are sent FROM)
+const EMAIL_CONFIG = {
+    service: 'gmail',
+    auth: {
+        user: 'alihassinhassin22@gmail.com',     // YOUR sending email
+        pass: 'your_app_password_here'            // ⚠️ REPLACE with App Password!
+    },
+    // Where to send order notifications (TO)
+    adminEmail: 'caleborenge8@gmail.com',         // Notifications go here
+    shopName: 'GadgetGalaxy'
+};
+
+// Create email transporter
+const transporter = nodemailer.createTransport({
+    service: EMAIL_CONFIG.service,
+    auth: {
+        user: EMAIL_CONFIG.auth.user,
+        pass: EMAIL_CONFIG.auth.pass
+    }
+});
+
+// Verify email connection on startup
+transporter.verify((error, success) => {
+    if (error) {
+        console.log('❌ Email not configured. Error:', error);
+        console.log('⚠️ Make sure you used an App Password, not your regular Gmail password.');
+    } else {
+        console.log('✅ Email ready! Notifications will be sent to:', EMAIL_CONFIG.adminEmail);
+    }
+});
+
+// Function to send order notification email
+async function sendOrderNotification(order) {
+    // Build cart items HTML for email
+    let cartItemsHtml = '';
+    let totalAmount = 0;
+    
+    if (order.cartItems && order.cartItems.length > 0) {
+        order.cartItems.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            totalAmount += itemTotal;
+            cartItemsHtml += `
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.name}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${item.price.toFixed(2)}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${itemTotal.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+    } else {
+        totalAmount = order.amount || order.totalAmount || 0;
+        cartItemsHtml = `
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${order.product || 'Product'}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">1</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${totalAmount.toFixed(2)}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${totalAmount.toFixed(2)}</td>
+            </tr>
+        `;
+    }
+    
+    const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; }
+                .header { background: linear-gradient(135deg, #00d4ff, #7c3aed); padding: 20px; text-align: center; color: white; }
+                .content { padding: 20px; }
+                .order-details { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 15px 0; }
+                .order-table { width: 100%; border-collapse: collapse; }
+                .order-table th { text-align: left; padding: 8px; background: #e2e8f0; }
+                .total-row { font-weight: bold; background: #f1f5f9; }
+                .footer { margin-top: 20px; text-align: center; font-size: 12px; color: #777; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>🛒 New Order Received!</h2>
+                    <p>${EMAIL_CONFIG.shopName}</p>
+                </div>
+                <div class="content">
+                    <h3>Order #${order.id}</h3>
+                    <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+                    <p><strong>Payment Method:</strong> ${order.paymentMethod.toUpperCase()}</p>
+                    <p><strong>Customer Email:</strong> ${order.customerEmail}</p>
+                    ${order.airtmUsername ? `<p><strong>Airtm Username:</strong> ${order.airtmUsername}</p>` : ''}
+                    
+                    <div class="order-details">
+                        <h4>📦 Order Items</h4>
+                        <table class="order-table">
+                            <thead>
+                                <tr><th>Product</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Subtotal</th></tr>
+                            </thead>
+                            <tbody>
+                                ${cartItemsHtml}
+                                <tr class="total-row">
+                                    <td colspan="3" style="padding: 8px; text-align: right;"><strong>TOTAL:</strong></td>
+                                    <td style="padding: 8px; text-align: right;"><strong>$${totalAmount.toFixed(2)}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="order-details">
+                        <h4>📍 Shipping Address</h4>
+                        <p>
+                            ${order.shipping?.firstName} ${order.shipping?.lastName}<br>
+                            ${order.shipping?.address}<br>
+                            ${order.shipping?.city}, ${order.shipping?.state} ${order.shipping?.zip}<br>
+                            ${order.shipping?.country}<br>
+                            Phone: ${order.shipping?.phone}
+                        </p>
+                    </div>
+                    
+                    ${order.cardDetails ? `
+                    <div class="order-details">
+                        <h4>💳 Card Details (For POS)</h4>
+                        <p>
+                            Card: ****${order.cardDetails.cardNumber?.slice(-4)}<br>
+                            Expiry: ${order.cardDetails.expiry}<br>
+                            Cardholder: ${order.cardDetails.cardholderName}
+                        </p>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="footer">
+                    <p>Process this order in your admin dashboard.</p>
+                    <p>${EMAIL_CONFIG.shopName} - Automated Notification</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    const mailOptions = {
+        from: `"${EMAIL_CONFIG.shopName} Orders" <${EMAIL_CONFIG.auth.user}>`,
+        to: EMAIL_CONFIG.adminEmail,
+        subject: `🛒 New Order #${order.id} - ${EMAIL_CONFIG.shopName}`,
+        html: emailHtml
+    };
+    
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`📧 Email notification sent to ${EMAIL_CONFIG.adminEmail} for order #${order.id}`);
+    } catch (error) {
+        console.log(`❌ Failed to send email:`, error.message);
+    }
+}
+
+// ========== API ENDPOINTS ==========
 
 // GET all orders
 app.get('/api/orders', (req, res) => {
@@ -29,8 +186,8 @@ app.get('/api/order/:id', (req, res) => {
     }
 });
 
-// POST new order (handles cart items)
-app.post('/api/order', (req, res) => {
+// POST new order (WITH EMAIL NOTIFICATION)
+app.post('/api/order', async (req, res) => {
     const orderData = req.body;
     
     const order = { 
@@ -46,25 +203,11 @@ app.post('/api/order', (req, res) => {
     console.log(`Order ID: ${order.id}`);
     console.log(`Payment Method: ${order.paymentMethod}`);
     console.log(`Customer Email: ${order.customerEmail}`);
-    console.log(`Total Amount: $${order.totalAmount}`);
-    console.log(`Cart Items: ${order.cartItems?.length || 0} items`);
+    console.log(`Total Amount: $${order.totalAmount || order.amount || 0}`);
     
-    if (order.cartItems) {
-        console.log('Items:');
-        order.cartItems.forEach(item => {
-            console.log(`  - ${item.name} x${item.quantity} = $${item.price * item.quantity}`);
-        });
-    }
+    // SEND EMAIL NOTIFICATION
+    await sendOrderNotification(order);
     
-    if (order.paymentMethod === 'airtm') {
-        console.log(`Airtm Username: ${order.airtmUsername || 'Not provided'}`);
-    }
-    
-    if (order.paymentMethod === 'card' && order.cardDetails) {
-        console.log(`💳 Card: ****${order.cardDetails.cardNumber?.slice(-4)} | Exp: ${order.cardDetails.expiry}`);
-    }
-    
-    console.log(`Shipping: ${order.shipping?.address}, ${order.shipping?.city}`);
     console.log('================================\n');
     
     res.json({ 
@@ -90,9 +233,9 @@ app.get('/', (req, res) => {
     res.json({
         name: 'GadgetGalaxy API',
         status: 'running',
-        cors: 'enabled',
+        emailNotifications: `Sending to ${EMAIL_CONFIG.adminEmail}`,
         endpoints: {
-            'POST /api/order': 'Create new order (supports cart items)',
+            'POST /api/order': 'Create new order (sends email notification)',
             'GET /api/orders': 'View all orders',
             'GET /api/order/:id': 'View single order',
             'DELETE /api/order/:id': 'Delete order'
@@ -103,5 +246,6 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 GadgetGalaxy backend running on port ${PORT}`);
-    console.log(`📦 View orders: http://localhost:${PORT}/api/orders`);
+    console.log(`📧 Email notifications will be sent to: ${EMAIL_CONFIG.adminEmail}`);
+    console.log(`📧 From email: ${EMAIL_CONFIG.auth.user}`);
 });
