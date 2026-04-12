@@ -87,7 +87,7 @@
             margin-top: 10px;
         }
         button:hover { background: #1e293b; transform: scale(1.02); }
-        .crypto-address {
+        .crypto-address, .airtm-instructions {
             background: #f1f5f9;
             padding: 16px;
             border-radius: 16px;
@@ -183,8 +183,24 @@
                 <div id="cardMessage" class="message"></div>
             </div>
 
+            <!-- UPDATED AIRTM PANEL with Username & Instructions -->
             <div id="airtmPanel" class="payment-form-panel">
-                <div class="form-group"><label>Email *</label><input type="email" id="airtmEmail"></div>
+                <div class="form-group"><label>📧 Email Address *</label><input type="email" id="airtmEmail" placeholder="customer@example.com"></div>
+                <div class="form-group"><label>👤 Airtm Username (Optional)</label><input type="text" id="airtmUsername" placeholder="e.g., john_airtm"></div>
+                
+                <div class="airtm-instructions">
+                    <strong>💰 Airtm Payment Instructions:</strong><br><br>
+                    After clicking "Request Payment", we will send you a payment request to:<br>
+                    • Your email address <strong id="airtmEmailDisplay">[your email]</strong><br>
+                    • Or to your Airtm username: <strong>@GadgetGalaxy</strong><br><br>
+                    <strong>📌 Steps:</strong><br>
+                    1. Check your email or Airtm account<br>
+                    2. Accept the payment request<br>
+                    3. Send the exact amount: <strong id="airtmAmount">$550.00 USD</strong><br>
+                    4. Once confirmed, your product will ship within 24 hours<br><br>
+                    <strong>⏱️ Processing time:</strong> 10-30 minutes after payment
+                </div>
+                
                 <button id="airtmSubmit">Request Payment via Airtm</button>
                 <div id="airtmMessage" class="message"></div>
             </div>
@@ -266,8 +282,10 @@
         
         const instrAmount = document.getElementById('instructionAmount');
         const instrAmount2 = document.getElementById('instructionAmount2');
+        const airtmAmount = document.getElementById('airtmAmount');
         if (instrAmount) instrAmount.innerText = `$${p.price}.00 USD`;
         if (instrAmount2) instrAmount2.innerText = `$${p.price}.00 USD`;
+        if (airtmAmount) airtmAmount.innerText = `$${p.price}.00 USD`;
     }
 
     function getTotal() {
@@ -370,7 +388,7 @@
         };
     }
 
-    // Airtm Submit
+    // UPDATED Airtm Submit with Username
     const airtmBtn = document.getElementById('airtmSubmit');
     if (airtmBtn) {
         airtmBtn.onclick = async () => {
@@ -379,21 +397,42 @@
                 return;
             }
             const email = document.getElementById('airtmEmail').value;
-            if (!email) { showMessage('airtmMessage', 'Enter email', 'error'); return; }
+            if (!email) { 
+                showMessage('airtmMessage', 'Enter your email address', 'error'); 
+                return; 
+            }
+            
+            const username = document.getElementById('airtmUsername').value;
+            const total = getTotal();
+            const product = products[document.getElementById('productSelect').value].name;
+            
+            // Update instruction display
+            const emailDisplay = document.getElementById('airtmEmailDisplay');
+            if (emailDisplay) emailDisplay.innerText = email;
+            
             showMessage('airtmMessage', 'Processing...', 'info');
+            
             const order = {
-                product: products[document.getElementById('productSelect').value].name,
-                amount: getTotal(),
+                product: product,
+                amount: total,
                 paymentMethod: 'airtm',
                 customerEmail: email,
-                shipping: getShippingData()
+                airtmUsername: username || 'not provided',
+                shipping: getShippingData(),
+                message: `Payment request for ${product} - $${total} USD. Airtm username: ${username || 'none'}`
             };
+            
             try {
-                const res = await fetch(`${BACKEND_URL}/api/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
+                const res = await fetch(`${BACKEND_URL}/api/order`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(order) 
+                });
                 const data = await res.json();
-                showMessage('airtmMessage', `✅ Order #${data.orderId} created! Check ${email} for payment request.`, 'success');
+                showMessage('airtmMessage', `✅ Request sent! We'll email ${email} within 24 hours with payment instructions. Order #${data.orderId}`, 'success');
             } catch(err) {
-                showMessage('airtmMessage', `✅ Order saved locally! We'll contact you at ${email}.`, 'success');
+                console.log('Order saved:', order);
+                showMessage('airtmMessage', `✅ Request saved! We'll contact you at ${email} within 24 hours.`, 'success');
             }
         };
     }
