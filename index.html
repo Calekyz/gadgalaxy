@@ -95,11 +95,13 @@
             margin: 16px 0;
             word-break: break-all;
         }
-        .copy-btn { background: #3b82f6; margin-top: 8px; padding: 8px; font-size: 14px; }
+        .copy-btn { background: #3b82f6; margin-top: 8px; padding: 8px; font-size: 14px; width: auto; display: inline-block; margin-right: 5px; }
         .message { margin-top: 16px; padding: 12px; border-radius: 12px; display: none; }
         .message.success { background: #dcfce7; color: #166534; display: block; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; }
         .message.info { background: #dbeafe; color: #1e40af; display: block; }
+        .instruction-box { background: #fef3c7; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: left; font-size: 14px; color: #92400e; }
+        .instruction-box strong { color: #b45309; }
         @media (max-width: 900px) { .product-payment-grid { grid-template-columns: 1fr; } .form-row { flex-direction: column; } }
     </style>
 </head>
@@ -107,7 +109,7 @@
 <div class="container">
     <div class="header">
         <div class="logo">🛒 GadgetGalaxy</div>
-        <div class="tagline">Premium Phones & Computers • Worldwide Shipping</div>
+        <div class="tagline">Premium Phones, Computers & Gaming Gear • Worldwide Shipping</div>
     </div>
 
     <div class="product-payment-grid">
@@ -116,11 +118,16 @@
             <div class="product-selector">
                 <select id="productSelect">
                     <option value="ps5">🎮 PlayStation 5 - $550</option>
+                    <option value="ps4">🎮 PlayStation 4 Pro - $350</option>
+                    <option value="iphone16">📱 iPhone 16 Pro - $1199</option>
+                    <option value="iphone17">📱 iPhone 17 Pro - $1399</option>
                     <option value="iphone15">📱 iPhone 15 Pro - $999</option>
                     <option value="iphone14">📱 iPhone 14 - $699</option>
+                    <option value="samsung">📱 Samsung Galaxy S24 - $849</option>
                     <option value="macbook">💻 MacBook Pro M3 - $1599</option>
                     <option value="macbookair">💻 MacBook Air M2 - $1099</option>
-                    <option value="samsung">📱 Samsung Galaxy S24 - $849</option>
+                    <option value="gamingpc">🖥️ High Power Gaming PC - $2499</option>
+                    <option value="curvedmonitor">🖥️ Curved Gaming Monitor 34" - $599</option>
                     <option value="dell">💻 Dell XPS 15 - $1399</option>
                 </select>
             </div>
@@ -163,7 +170,7 @@
                 <button class="pay-option-btn" data-method="crypto">₿ Crypto (USDT)</button>
             </div>
 
-            <!-- CARD PANEL (with billing details) -->
+            <!-- CARD PANEL -->
             <div id="cardPanel" class="payment-form-panel active-panel">
                 <div class="section-header" style="font-size: 14px;">💳 Billing Details</div>
                 <div class="form-row">
@@ -186,15 +193,41 @@
                 <div id="airtmMessage" class="message"></div>
             </div>
 
-            <!-- CRYPTO PANEL -->
+            <!-- CRYPTO PANEL (with Binance ID & Instructions) -->
             <div id="cryptoPanel" class="payment-form-panel">
                 <div class="form-group"><label>Email *</label><input type="email" id="cryptoEmail"></div>
                 <button id="cryptoSubmit">Pay via Crypto (USDT)</button>
                 <div id="cryptoDetails" style="display:none;">
                     <div class="crypto-address">
-                        <strong>USDT (TRC20) Address:</strong><br>
+                        <strong>💸 USDT (TRC20) Deposit Address:</strong><br>
                         <code id="usdtAddress">TVvYRDdPyQCCg22onuaau56rS5PNP3Gx7s</code>
-                        <button class="copy-btn" onclick="copyToClipboard('usdtAddress')">📋 Copy</button>
+                        <button class="copy-btn" onclick="copyToClipboard('usdtAddress')">📋 Copy Address</button>
+                        <br><br>
+                        <strong>🆔 Binance ID:</strong><br>
+                        <code id="binanceId">1067841957</code>
+                        <button class="copy-btn" onclick="copyToClipboard('binanceId')">📋 Copy Binance ID</button>
+                    </div>
+                    
+                    <div class="instruction-box">
+                        <strong>📌 Instructions to send payment:</strong><br><br>
+                        <strong>Option 1 - Using USDT Address:</strong><br>
+                        1. Open Binance or any crypto wallet<br>
+                        2. Go to Withdraw → Send → USDT (TRC20 network)<br>
+                        3. Paste address: <strong>TVvYRDdPyQCCg22onuaau56rS5PNP3Gx7s</strong><br>
+                        4. Enter exact amount: <strong id="instructionAmount">$550.00 USD</strong><br>
+                        5. Include your email in the memo/note<br><br>
+                        
+                        <strong>Option 2 - Using Binance ID (Internal Transfer):</strong><br>
+                        1. Log into your Binance account<br>
+                        2. Go to Wallet → Withdraw → Internal Transfer<br>
+                        3. Enter Binance ID: <strong>1067841957</strong><br>
+                        4. Enter amount: <strong id="instructionAmount2">$550.00 USD</strong> in USDT<br>
+                        5. Add your email as reference<br><br>
+                        
+                        <strong>✅ After sending:</strong><br>
+                        • Wait 10-30 minutes for confirmation<br>
+                        • You will receive an email once payment is verified<br>
+                        • Your product will ship to the address you provided
                     </div>
                 </div>
                 <div id="cryptoMessage" class="message"></div>
@@ -204,18 +237,23 @@
 </div>
 
 <script>
-    // BACKEND URL (YOUR RENDER LINK)
+    // BACKEND URL
     const BACKEND_URL = 'https://gadgetgalaxy-api-r9ta.onrender.com';
 
-    // PRODUCT DATABASE
+    // PRODUCT DATABASE (UPDATED with new items)
     const products = {
         ps5: { name: "PlayStation 5", price: 550, desc: "Ultra-high speed SSD • 4K gaming • Ray tracing", specs: ["825GB SSD", "4K UHD (8K support)", "DualSense Wireless", "1 Year Warranty"] },
-        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1\" Super Retina", "USB-C", "Action Button"] },
-        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1\" OLED", "5G Ready", "Emergency SOS"] },
-        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2\" Liquid Retina", "3 Thunderbolt ports"] },
-        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6\" Display", "MagSafe charging"] },
+        ps4: { name: "PlayStation 4 Pro", price: 350, desc: "4K gaming • 1TB storage • Enhanced performance", specs: ["1TB HDD", "4K Upscaling", "DualShock 4", "500+ Games"] },
+        iphone16: { name: "iPhone 16 Pro", price: 1199, desc: "A18 Pro chip • AI camera • Titanium design", specs: ["256GB Storage", "6.3" Super Retina", "48MP Main", "USB-C 3.0"] },
+        iphone17: { name: "iPhone 17 Pro", price: 1399, desc: "Next-gen A19 chip • Under-display Face ID", specs: ["256GB Storage", "6.3" OLED", "50MP Camera", "AI Features"] },
+        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1" Super Retina", "USB-C", "Action Button"] },
+        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1" OLED", "5G Ready", "Emergency SOS"] },
         samsung: { name: "Samsung Galaxy S24", price: 849, desc: "AI-powered • 50MP camera • Snapdragon 8 Gen 3", specs: ["8GB RAM", "128GB Storage", "120Hz Display", "7 years updates"] },
-        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6\" OLED", "Windows 11 Pro"] }
+        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2" Liquid Retina", "3 Thunderbolt ports"] },
+        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6" Display", "MagSafe charging"] },
+        gamingpc: { name: "High Power Gaming PC", price: 2499, desc: "RTX 4080 • Intel i9 • Liquid cooling", specs: ["32GB DDR5", "1TB NVMe SSD", "RTX 4080 16GB", "i9-13900K"] },
+        curvedmonitor: { name: "Curved Gaming Monitor 34\"", price: 599, desc: "Ultrawide • 165Hz • 1ms response", specs: ["34\" Curved", "3440x1440", "165Hz", "G-Sync Compatible"] },
+        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6" OLED", "Windows 11 Pro"] }
     };
 
     function updateProduct() {
@@ -231,6 +269,12 @@
         });
         document.getElementById('productSpecs').innerHTML = specsHtml;
         document.getElementById('displayAmount').innerHTML = `$${p.price}.00`;
+        
+        // Update instruction amounts
+        const instructionAmounts = document.querySelectorAll('#instructionAmount, #instructionAmount2');
+        instructionAmounts.forEach(el => {
+            if(el) el.innerText = `$${p.price}.00 USD`;
+        });
     }
 
     document.getElementById('productSelect').addEventListener('change', updateProduct);
@@ -277,8 +321,9 @@
     });
 
     window.copyToClipboard = (id) => {
-        navigator.clipboard.writeText(document.getElementById(id).innerText);
-        alert('Address copied!');
+        const text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text);
+        alert('Copied: ' + text);
     };
 
     function showMessage(elementId, text, type) {
@@ -393,7 +438,7 @@
             });
             const data = await res.json();
             document.getElementById('cryptoDetails').style.display = 'block';
-            showMessage('cryptoMessage', `Order #${data.orderId} created! Send $${getTotal()} USDT to address below.`, 'success');
+            showMessage('cryptoMessage', `Order #${data.orderId} created! Send $${getTotal()} USDT using instructions below.`, 'success');
         } catch(err) {
             console.log('Order saved locally:', order);
             document.getElementById('cryptoDetails').style.display = 'block';
