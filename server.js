@@ -1,5 +1,5 @@
 const express = require('express');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const app = express();
 
 // CORS middleware
@@ -15,36 +15,13 @@ app.use(express.json());
 
 let orders = [];
 
-// ========== EMAIL CONFIGURATION ==========
-const EMAIL_CONFIG = {
-    service: 'gmail',
-    auth: {
-        user: 'kennedyorenge22@gmail.com',
-        pass: 'czka iguv nrsc hsai'
-    },
-    adminEmail: 'kelvinberns1@gmail.com',
-    shopName: 'GadgetGalaxy'
-};
+// ========== RESEND EMAIL CONFIGURATION ==========
+const resend = new Resend('re_fmCDGVHD_J6Wb9uTMnPaGBQQpfsPYEzHV');
 
-// Create email transporter
-const transporter = nodemailer.createTransport({
-    service: EMAIL_CONFIG.service,
-    auth: {
-        user: EMAIL_CONFIG.auth.user,
-        pass: EMAIL_CONFIG.auth.pass
-    }
-});
+const ADMIN_EMAIL = 'kelvinberns1@gmail.com';
+const FROM_EMAIL = 'onboarding@resend.dev'; // Resend's default sender
 
-// Verify email connection
-transporter.verify((error, success) => {
-    if (error) {
-        console.log('❌ Email error:', error.message);
-    } else {
-        console.log('✅ Email ready! Notifications to:', EMAIL_CONFIG.adminEmail);
-    }
-});
-
-// Send order notification email
+// Send order notification using Resend API
 async function sendOrderNotification(order) {
     let cartItemsHtml = '';
     let totalAmount = 0;
@@ -91,7 +68,7 @@ async function sendOrderNotification(order) {
         <body>
             <div class="header">
                 <h2>🛒 New Order Received!</h2>
-                <p>${EMAIL_CONFIG.shopName}</p>
+                <p>GadgetGalaxy</p>
             </div>
             <div class="content">
                 <h3>Order #${order.id}</h3>
@@ -103,9 +80,11 @@ async function sendOrderNotification(order) {
                 <div class="order-details">
                     <h4>📦 Order Items</h4>
                     <table class="order-table">
-                        <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
+                        <thead>
+                            <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+                        </thead>
                         <tbody>${cartItemsHtml}
-                        <tr class="total-row"><td colspan="3" style="text-align:right">TOTAL:</td><td>$${totalAmount.toFixed(2)}</td></tr>
+                        <tr class="total-row"><td colspan="3" style="text-align:right">TOTAL:</td><td><strong>$${totalAmount.toFixed(2)}</strong></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -136,18 +115,21 @@ async function sendOrderNotification(order) {
         </html>
     `;
     
-    const mailOptions = {
-        from: `"${EMAIL_CONFIG.shopName}" <${EMAIL_CONFIG.auth.user}>`,
-        to: EMAIL_CONFIG.adminEmail,
-        subject: `🛒 New Order #${order.id} - $${totalAmount.toFixed(2)}`,
-        html: emailHtml
-    };
-    
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(`📧 Email sent for order #${order.id}`);
+        const { data, error } = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: ADMIN_EMAIL,
+            subject: `🛒 New Order #${order.id} - $${totalAmount.toFixed(2)}`,
+            html: emailHtml
+        });
+        
+        if (error) {
+            console.log('❌ Email failed:', error);
+        } else {
+            console.log(`📧 Email sent to ${ADMIN_EMAIL} for order #${order.id}`);
+        }
     } catch (error) {
-        console.log(`❌ Email failed:`, error.message);
+        console.log('❌ Email error:', error.message);
     }
 }
 
@@ -181,7 +163,10 @@ app.post('/api/order', async (req, res) => {
     console.log(`Payment: ${order.paymentMethod}`);
     console.log(`Customer: ${order.customerEmail}`);
     console.log(`Total: $${order.totalAmount || order.amount || 0}`);
+    
+    // Send email notification
     await sendOrderNotification(order);
+    
     console.log('================================\n');
     
     res.json({ success: true, orderId: order.id });
@@ -201,12 +186,14 @@ app.get('/', (req, res) => {
     res.json({
         name: 'GadgetGalaxy API',
         status: 'running',
-        emailTo: EMAIL_CONFIG.adminEmail
+        emailTo: ADMIN_EMAIL,
+        message: 'Using Resend for email notifications'
     });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📧 Notifications to: kelvinberns1@gmail.com`);
+    console.log(`📧 Email notifications to: ${ADMIN_EMAIL}`);
+    console.log(`✅ Using Resend API - SMTP ports not needed!`);
 });
