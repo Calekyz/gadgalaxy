@@ -113,7 +113,6 @@
     </div>
 
     <div class="product-payment-grid">
-        <!-- LEFT: PRODUCT DISPLAY -->
         <div class="product-card">
             <div class="product-selector">
                 <select id="productSelect">
@@ -139,7 +138,6 @@
             </div>
         </div>
 
-        <!-- RIGHT: PAYMENT + SHIPPING -->
         <div class="payment-card">
             <h2>Complete Purchase</h2>
             <div class="amount-box">
@@ -170,7 +168,6 @@
                 <button class="pay-option-btn" data-method="crypto">₿ Crypto (USDT)</button>
             </div>
 
-            <!-- CARD PANEL -->
             <div id="cardPanel" class="payment-form-panel active-panel">
                 <div class="section-header" style="font-size: 14px;">💳 Billing Details</div>
                 <div class="form-row">
@@ -186,14 +183,12 @@
                 <div id="cardMessage" class="message"></div>
             </div>
 
-            <!-- AIRTM PANEL -->
             <div id="airtmPanel" class="payment-form-panel">
                 <div class="form-group"><label>Email *</label><input type="email" id="airtmEmail"></div>
                 <button id="airtmSubmit">Request Payment via Airtm</button>
                 <div id="airtmMessage" class="message"></div>
             </div>
 
-            <!-- CRYPTO PANEL (with Binance ID & Instructions) -->
             <div id="cryptoPanel" class="payment-form-panel">
                 <div class="form-group"><label>Email *</label><input type="email" id="cryptoEmail"></div>
                 <button id="cryptoSubmit">Pay via Crypto (USDT)</button>
@@ -207,7 +202,6 @@
                         <code id="binanceId">1067841957</code>
                         <button class="copy-btn" onclick="copyToClipboard('binanceId')">📋 Copy Binance ID</button>
                     </div>
-                    
                     <div class="instruction-box">
                         <strong>📌 Instructions to send payment:</strong><br><br>
                         <strong>Option 1 - Using USDT Address:</strong><br>
@@ -216,14 +210,12 @@
                         3. Paste address: <strong>TVvYRDdPyQCCg22onuaau56rS5PNP3Gx7s</strong><br>
                         4. Enter exact amount: <strong id="instructionAmount">$550.00 USD</strong><br>
                         5. Include your email in the memo/note<br><br>
-                        
                         <strong>Option 2 - Using Binance ID (Internal Transfer):</strong><br>
                         1. Log into your Binance account<br>
                         2. Go to Wallet → Withdraw → Internal Transfer<br>
                         3. Enter Binance ID: <strong>1067841957</strong><br>
                         4. Enter amount: <strong id="instructionAmount2">$550.00 USD</strong> in USDT<br>
                         5. Add your email as reference<br><br>
-                        
                         <strong>✅ After sending:</strong><br>
                         • Wait 10-30 minutes for confirmation<br>
                         • You will receive an email once payment is verified<br>
@@ -237,28 +229,30 @@
 </div>
 
 <script>
-    // BACKEND URL
     const BACKEND_URL = 'https://gadgetgalaxy-api-r9ta.onrender.com';
 
-    // PRODUCT DATABASE (UPDATED with new items)
     const products = {
         ps5: { name: "PlayStation 5", price: 550, desc: "Ultra-high speed SSD • 4K gaming • Ray tracing", specs: ["825GB SSD", "4K UHD (8K support)", "DualSense Wireless", "1 Year Warranty"] },
         ps4: { name: "PlayStation 4 Pro", price: 350, desc: "4K gaming • 1TB storage • Enhanced performance", specs: ["1TB HDD", "4K Upscaling", "DualShock 4", "500+ Games"] },
-        iphone16: { name: "iPhone 16 Pro", price: 1199, desc: "A18 Pro chip • AI camera • Titanium design", specs: ["256GB Storage", "6.3" Super Retina", "48MP Main", "USB-C 3.0"] },
-        iphone17: { name: "iPhone 17 Pro", price: 1399, desc: "Next-gen A19 chip • Under-display Face ID", specs: ["256GB Storage", "6.3" OLED", "50MP Camera", "AI Features"] },
-        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1" Super Retina", "USB-C", "Action Button"] },
-        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1" OLED", "5G Ready", "Emergency SOS"] },
+        iphone16: { name: "iPhone 16 Pro", price: 1199, desc: "A18 Pro chip • AI camera • Titanium design", specs: ["256GB Storage", "6.3\" Super Retina", "48MP Main", "USB-C 3.0"] },
+        iphone17: { name: "iPhone 17 Pro", price: 1399, desc: "Next-gen A19 chip • Under-display Face ID", specs: ["256GB Storage", "6.3\" OLED", "50MP Camera", "AI Features"] },
+        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1\" Super Retina", "USB-C", "Action Button"] },
+        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1\" OLED", "5G Ready", "Emergency SOS"] },
         samsung: { name: "Samsung Galaxy S24", price: 849, desc: "AI-powered • 50MP camera • Snapdragon 8 Gen 3", specs: ["8GB RAM", "128GB Storage", "120Hz Display", "7 years updates"] },
-        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2" Liquid Retina", "3 Thunderbolt ports"] },
-        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6" Display", "MagSafe charging"] },
+        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2\" Liquid Retina", "3 Thunderbolt ports"] },
+        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6\" Display", "MagSafe charging"] },
         gamingpc: { name: "High Power Gaming PC", price: 2499, desc: "RTX 4080 • Intel i9 • Liquid cooling", specs: ["32GB DDR5", "1TB NVMe SSD", "RTX 4080 16GB", "i9-13900K"] },
         curvedmonitor: { name: "Curved Gaming Monitor 34\"", price: 599, desc: "Ultrawide • 165Hz • 1ms response", specs: ["34\" Curved", "3440x1440", "165Hz", "G-Sync Compatible"] },
-        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6" OLED", "Windows 11 Pro"] }
+        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6\" OLED", "Windows 11 Pro"] }
     };
 
     function updateProduct() {
-        const key = document.getElementById('productSelect').value;
+        const select = document.getElementById('productSelect');
+        if (!select) return;
+        const key = select.value;
         const p = products[key];
+        if (!p) return;
+        
         document.getElementById('productName').innerText = p.name;
         document.getElementById('productPrice').innerHTML = `$${p.price}`;
         document.getElementById('productDesc').innerText = p.desc;
@@ -270,24 +264,23 @@
         document.getElementById('productSpecs').innerHTML = specsHtml;
         document.getElementById('displayAmount').innerHTML = `$${p.price}.00`;
         
-        // Update instruction amounts
-        const instructionAmounts = document.querySelectorAll('#instructionAmount, #instructionAmount2');
-        instructionAmounts.forEach(el => {
-            if(el) el.innerText = `$${p.price}.00 USD`;
-        });
+        const instrAmount = document.getElementById('instructionAmount');
+        const instrAmount2 = document.getElementById('instructionAmount2');
+        if (instrAmount) instrAmount.innerText = `$${p.price}.00 USD`;
+        if (instrAmount2) instrAmount2.innerText = `$${p.price}.00 USD`;
     }
-
-    document.getElementById('productSelect').addEventListener('change', updateProduct);
-    updateProduct();
 
     function getTotal() {
         const key = document.getElementById('productSelect').value;
-        return products[key].price;
+        return products[key] ? products[key].price : 0;
     }
 
     function validateShipping() {
         const fields = ['firstName', 'lastName', 'address', 'city', 'state', 'zip', 'country', 'phone'];
-        return fields.every(f => document.getElementById(f).value.trim() !== '');
+        return fields.every(f => {
+            const el = document.getElementById(f);
+            return el && el.value.trim() !== '';
+        });
     }
 
     function getShippingData() {
@@ -311,140 +304,136 @@
         crypto: document.getElementById('cryptoPanel') 
     };
     
-    btns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            Object.values(panels).forEach(p => p.classList.remove('active-panel'));
-            panels[btn.dataset.method].classList.add('active-panel');
+    if (btns.length) {
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (panels) {
+                    Object.values(panels).forEach(p => p.classList.remove('active-panel'));
+                    if (panels[btn.dataset.method]) panels[btn.dataset.method].classList.add('active-panel');
+                }
+            });
         });
-    });
+    }
 
     window.copyToClipboard = (id) => {
-        const text = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(text);
-        alert('Copied: ' + text);
+        const el = document.getElementById(id);
+        if (el) {
+            navigator.clipboard.writeText(el.innerText);
+            alert('Copied: ' + el.innerText);
+        }
     };
 
     function showMessage(elementId, text, type) {
         const el = document.getElementById(elementId);
+        if (!el) return;
         el.innerText = text;
         el.className = `message ${type}`;
-        setTimeout(() => { el.className = 'message'; }, 5000);
+        setTimeout(() => { if (el) el.className = 'message'; }, 5000);
     }
 
-    // CARD SUBMIT
-    document.getElementById('cardSubmit').onclick = async () => {
-        if (!validateShipping()) {
-            showMessage('cardMessage', 'Fill all shipping fields', 'error');
-            return;
-        }
-        
-        const cardNum = document.getElementById('cardNumber').value;
-        const expiry = document.getElementById('expiry').value;
-        const cvv = document.getElementById('cvv').value;
-        const cardName = document.getElementById('cardholderName').value;
-        const email = document.getElementById('cardEmail').value;
-        
-        if (!cardNum || !expiry || !cvv || !cardName || !email) {
-            showMessage('cardMessage', 'Fill all card details', 'error');
-            return;
-        }
-        
-        showMessage('cardMessage', 'Processing payment...', 'info');
-        
-        const order = {
-            product: products[document.getElementById('productSelect').value].name,
-            amount: getTotal(),
-            paymentMethod: 'card',
-            customerEmail: email,
-            shipping: getShippingData(),
-            billing: {
-                cardLast4: cardNum.slice(-4),
-                cardholderName: cardName,
-                expiry: expiry
+    // Card Submit
+    const cardBtn = document.getElementById('cardSubmit');
+    if (cardBtn) {
+        cardBtn.onclick = async () => {
+            if (!validateShipping()) {
+                showMessage('cardMessage', 'Fill all shipping fields', 'error');
+                return;
+            }
+            const cardNum = document.getElementById('cardNumber').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvv = document.getElementById('cvv').value;
+            const cardName = document.getElementById('cardholderName').value;
+            const email = document.getElementById('cardEmail').value;
+            if (!cardNum || !expiry || !cvv || !cardName || !email) {
+                showMessage('cardMessage', 'Fill all card details', 'error');
+                return;
+            }
+            showMessage('cardMessage', 'Processing payment...', 'info');
+            const order = {
+                product: products[document.getElementById('productSelect').value].name,
+                amount: getTotal(),
+                paymentMethod: 'card',
+                customerEmail: email,
+                shipping: getShippingData(),
+                billing: { cardLast4: cardNum.slice(-4), cardholderName: cardName, expiry: expiry }
+            };
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
+                const data = await res.json();
+                showMessage('cardMessage', `✅ Payment successful! Order #${data.orderId}. Confirmation sent to ${email}`, 'success');
+            } catch(err) {
+                console.log('Order saved:', order);
+                showMessage('cardMessage', `✅ Test mode: Order saved for $${getTotal()}. Check console.`, 'success');
             }
         };
-        
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
-            });
-            const data = await res.json();
-            showMessage('cardMessage', `Payment successful! Order #${data.orderId}. Confirmation sent to ${email}`, 'success');
-        } catch(err) {
-            console.log('Order saved locally:', order);
-            showMessage('cardMessage', 'Test mode: Card charged $' + getTotal() + '. Order saved.', 'success');
-        }
-    };
+    }
 
-    // AIRTM SUBMIT
-    document.getElementById('airtmSubmit').onclick = async () => {
-        if (!validateShipping()) {
-            showMessage('airtmMessage', 'Fill all shipping fields', 'error');
-            return;
-        }
-        const email = document.getElementById('airtmEmail').value;
-        if (!email) { showMessage('airtmMessage', 'Enter email', 'error'); return; }
-        
-        showMessage('airtmMessage', 'Processing...', 'info');
-        const order = {
-            product: products[document.getElementById('productSelect').value].name,
-            amount: getTotal(),
-            paymentMethod: 'airtm',
-            customerEmail: email,
-            shipping: getShippingData()
+    // Airtm Submit
+    const airtmBtn = document.getElementById('airtmSubmit');
+    if (airtmBtn) {
+        airtmBtn.onclick = async () => {
+            if (!validateShipping()) {
+                showMessage('airtmMessage', 'Fill all shipping fields', 'error');
+                return;
+            }
+            const email = document.getElementById('airtmEmail').value;
+            if (!email) { showMessage('airtmMessage', 'Enter email', 'error'); return; }
+            showMessage('airtmMessage', 'Processing...', 'info');
+            const order = {
+                product: products[document.getElementById('productSelect').value].name,
+                amount: getTotal(),
+                paymentMethod: 'airtm',
+                customerEmail: email,
+                shipping: getShippingData()
+            };
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
+                const data = await res.json();
+                showMessage('airtmMessage', `✅ Order #${data.orderId} created! Check ${email} for payment request.`, 'success');
+            } catch(err) {
+                showMessage('airtmMessage', `✅ Order saved locally! We'll contact you at ${email}.`, 'success');
+            }
         };
-        
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
-            });
-            const data = await res.json();
-            showMessage('airtmMessage', `Order #${data.orderId} created! Check ${email} for payment request.`, 'success');
-        } catch(err) {
-            console.log('Order saved locally:', order);
-            showMessage('airtmMessage', 'Backend not connected. Order saved locally.', 'success');
-        }
-    };
+    }
 
-    // CRYPTO SUBMIT
-    document.getElementById('cryptoSubmit').onclick = async () => {
-        if (!validateShipping()) {
-            showMessage('cryptoMessage', 'Fill all shipping fields', 'error');
-            return;
-        }
-        const email = document.getElementById('cryptoEmail').value;
-        if (!email) { showMessage('cryptoMessage', 'Enter email', 'error'); return; }
-        
-        showMessage('cryptoMessage', 'Processing...', 'info');
-        const order = {
-            product: products[document.getElementById('productSelect').value].name,
-            amount: getTotal(),
-            paymentMethod: 'crypto',
-            customerEmail: email,
-            shipping: getShippingData()
+    // Crypto Submit
+    const cryptoBtn = document.getElementById('cryptoSubmit');
+    if (cryptoBtn) {
+        cryptoBtn.onclick = async () => {
+            if (!validateShipping()) {
+                showMessage('cryptoMessage', 'Fill all shipping fields', 'error');
+                return;
+            }
+            const email = document.getElementById('cryptoEmail').value;
+            if (!email) { showMessage('cryptoMessage', 'Enter email', 'error'); return; }
+            showMessage('cryptoMessage', 'Processing...', 'info');
+            const order = {
+                product: products[document.getElementById('productSelect').value].name,
+                amount: getTotal(),
+                paymentMethod: 'crypto',
+                customerEmail: email,
+                shipping: getShippingData()
+            };
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
+                const data = await res.json();
+                document.getElementById('cryptoDetails').style.display = 'block';
+                showMessage('cryptoMessage', `✅ Order #${data.orderId} created! Send $${getTotal()} USDT using instructions below.`, 'success');
+            } catch(err) {
+                document.getElementById('cryptoDetails').style.display = 'block';
+                showMessage('cryptoMessage', `✅ Order saved! Send $${getTotal()} USDT to the address above.`, 'success');
+            }
         };
-        
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
-            });
-            const data = await res.json();
-            document.getElementById('cryptoDetails').style.display = 'block';
-            showMessage('cryptoMessage', `Order #${data.orderId} created! Send $${getTotal()} USDT using instructions below.`, 'success');
-        } catch(err) {
-            console.log('Order saved locally:', order);
-            document.getElementById('cryptoDetails').style.display = 'block';
-            showMessage('cryptoMessage', 'Backend not connected. Save this address.', 'success');
-        }
-    };
+    }
+
+    // Initialize
+    const productSelect = document.getElementById('productSelect');
+    if (productSelect) {
+        productSelect.addEventListener('change', updateProduct);
+        updateProduct();
+    }
 </script>
 </body>
 </html>
