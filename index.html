@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GadgetGalaxy | Phones & Computers</title>
+    <title>GadgetGalaxy | Checkout</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -19,28 +19,23 @@
         .header { text-align: center; margin-bottom: 50px; }
         .logo { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .tagline { color: #cbd5e1; font-size: 18px; }
+        .back-to-shop { display: inline-block; margin-top: 10px; color: #00d4ff; text-decoration: none; }
         .product-payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        .product-card {
+        .order-summary {
             background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(15,23,42,0.95));
             border-radius: 32px;
             padding: 30px;
             border: 1px solid rgba(59,130,246,0.3);
         }
-        .product-selector { margin-bottom: 30px; }
-        .product-selector select {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            border-radius: 16px;
-            background: #1e293b;
-            color: white;
-            border: 1px solid #3b82f6;
-            cursor: pointer;
+        .cart-items-list { margin: 20px 0; max-height: 300px; overflow-y: auto; }
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
         }
-        .product-title { font-size: 28px; font-weight: 800; color: white; margin: 20px 0 10px; }
-        .price { font-size: 48px; font-weight: 800; color: #00d4ff; margin: 20px 0; }
-        .specs { border-top: 1px solid #334155; padding-top: 20px; margin-top: 20px; }
-        .spec-item { display: flex; justify-content: space-between; padding: 10px 0; color: #cbd5e1; border-bottom: 1px solid #1e293b; }
+        .total-amount { font-size: 24px; font-weight: bold; color: #00d4ff; margin-top: 20px; padding-top: 20px; border-top: 2px solid #334155; }
         .payment-card {
             background: white;
             border-radius: 32px;
@@ -102,6 +97,7 @@
         .message.info { background: #dbeafe; color: #1e40af; display: block; }
         .instruction-box { background: #fef3c7; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: left; font-size: 14px; color: #92400e; }
         .instruction-box strong { color: #b45309; }
+        .empty-cart { text-align: center; padding: 40px; color: #94a3b8; }
         @media (max-width: 900px) { .product-payment-grid { grid-template-columns: 1fr; } .form-row { flex-direction: column; } }
     </style>
 </head>
@@ -109,41 +105,21 @@
 <div class="container">
     <div class="header">
         <div class="logo">🛒 GadgetGalaxy</div>
-        <div class="tagline">Premium Phones, Computers & Gaming Gear • Worldwide Shipping</div>
+        <div class="tagline">Secure Checkout</div>
+        <a href="shop.html" class="back-to-shop">← Back to Shop</a>
     </div>
 
     <div class="product-payment-grid">
-        <div class="product-card">
-            <div class="product-selector">
-                <select id="productSelect">
-                    <option value="ps5">🎮 PlayStation 5 - $550</option>
-                    <option value="ps4">🎮 PlayStation 4 Pro - $350</option>
-                    <option value="iphone16">📱 iPhone 16 Pro - $1199</option>
-                    <option value="iphone17">📱 iPhone 17 Pro - $1399</option>
-                    <option value="iphone15">📱 iPhone 15 Pro - $999</option>
-                    <option value="iphone14">📱 iPhone 14 - $699</option>
-                    <option value="samsung">📱 Samsung Galaxy S24 - $849</option>
-                    <option value="macbook">💻 MacBook Pro M3 - $1599</option>
-                    <option value="macbookair">💻 MacBook Air M2 - $1099</option>
-                    <option value="gamingpc">🖥️ High Power Gaming PC - $2499</option>
-                    <option value="curvedmonitor">🖥️ Curved Gaming Monitor 34" - $599</option>
-                    <option value="dell">💻 Dell XPS 15 - $1399</option>
-                </select>
-            </div>
-            <div id="productDetails">
-                <h1 class="product-title" id="productName">PlayStation 5</h1>
-                <div class="price" id="productPrice">$550</div>
-                <p id="productDesc" style="color:#94a3b8">Ultra-high speed SSD • 4K gaming</p>
-                <div class="specs" id="productSpecs"></div>
-            </div>
+        <!-- LEFT: ORDER SUMMARY (from cart) -->
+        <div class="order-summary">
+            <h2 style="color:white; margin-bottom:20px;">📦 Your Order</h2>
+            <div id="cartSummary" class="cart-items-list"></div>
+            <div id="orderTotal" class="total-amount"></div>
         </div>
 
+        <!-- RIGHT: PAYMENT + SHIPPING -->
         <div class="payment-card">
-            <h2>Complete Purchase</h2>
-            <div class="amount-box">
-                <span>Total Amount</span>
-                <span class="amount-value" id="displayAmount">$550.00</span>
-            </div>
+            <h2>Complete Payment</h2>
 
             <div class="section-header">📦 Shipping Information</div>
             <div class="form-row">
@@ -168,9 +144,9 @@
                 <button class="pay-option-btn" data-method="crypto">₿ Crypto (USDT)</button>
             </div>
 
-            <!-- CARD PANEL - FULL DETAILS FOR POS -->
+            <!-- CARD PANEL -->
             <div id="cardPanel" class="payment-form-panel active-panel">
-                <div class="section-header" style="font-size: 14px;">💳 Card Details (for POS)</div>
+                <div class="section-header" style="font-size: 14px;">💳 Card Details</div>
                 <div class="form-row">
                     <div class="form-group"><label>Card Number *</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456"></div>
                 </div>
@@ -189,7 +165,7 @@
                     <div class="form-group"><label>ZIP *</label><input type="text" id="cardZip" placeholder="ZIP code"></div>
                 </div>
                 <div class="form-group"><label>Country *</label><select id="cardCountry"><option value="">Select</option><option>US</option><option>CA</option><option>UK</option><option>KE</option></select></div>
-                <button id="cardSubmit">💳 Process Card Payment</button>
+                <button id="cardSubmit">💳 Pay $<span id="cardPayAmount">0</span></button>
                 <div id="cardMessage" class="message"></div>
             </div>
 
@@ -199,46 +175,29 @@
                 <div class="form-group"><label>👤 Airtm Username (Optional)</label><input type="text" id="airtmUsername" placeholder="e.g., john_airtm"></div>
                 <div class="airtm-instructions">
                     <strong>💰 Airtm Payment Instructions:</strong><br><br>
-                    After clicking "Request Payment", we will send you a payment request to your email or Airtm username: <strong>@GadgetGalaxy</strong><br><br>
-                    <strong>📌 Steps:</strong><br>
-                    1. Check your email or Airtm account<br>
-                    2. Accept the payment request<br>
-                    3. Send the exact amount: <strong id="airtmAmount">$550.00 USD</strong><br>
-                    4. Once confirmed, your product will ship within 24 hours
+                    We will send a payment request to your email or Airtm username: <strong>@GadgetGalaxy</strong>
                 </div>
-                <button id="airtmSubmit">Request Payment via Airtm</button>
+                <button id="airtmSubmit">Request Payment</button>
                 <div id="airtmMessage" class="message"></div>
             </div>
 
             <!-- CRYPTO PANEL -->
             <div id="cryptoPanel" class="payment-form-panel">
                 <div class="form-group"><label>Email *</label><input type="email" id="cryptoEmail"></div>
-                <button id="cryptoSubmit">Pay via Crypto (USDT)</button>
+                <button id="cryptoSubmit">Pay via Crypto</button>
                 <div id="cryptoDetails" style="display:none;">
                     <div class="crypto-address">
-                        <strong>💸 USDT (TRC20) Deposit Address:</strong><br>
+                        <strong>USDT (TRC20) Address:</strong><br>
                         <code id="usdtAddress">TVvYRDdPyQCCg22onuaau56rS5PNP3Gx7s</code>
-                        <button class="copy-btn" onclick="copyToClipboard('usdtAddress')">📋 Copy Address</button>
+                        <button class="copy-btn" onclick="copyToClipboard('usdtAddress')">📋 Copy</button>
                         <br><br>
-                        <strong>🆔 Binance ID:</strong><br>
+                        <strong>Binance ID:</strong><br>
                         <code id="binanceId">1067841957</code>
-                        <button class="copy-btn" onclick="copyToClipboard('binanceId')">📋 Copy Binance ID</button>
+                        <button class="copy-btn" onclick="copyToClipboard('binanceId')">📋 Copy</button>
                     </div>
                     <div class="instruction-box">
-                        <strong>📌 Instructions to send payment:</strong><br><br>
-                        <strong>Option 1 - Using USDT Address:</strong><br>
-                        1. Open Binance or any crypto wallet<br>
-                        2. Go to Withdraw → Send → USDT (TRC20 network)<br>
-                        3. Paste address: <strong>TVvYRDdPyQCCg22onuaau56rS5PNP3Gx7s</strong><br>
-                        4. Enter exact amount: <strong id="instructionAmount">$550.00 USD</strong><br>
-                        5. Include your email in the memo/note<br><br>
-                        <strong>Option 2 - Using Binance ID (Internal Transfer):</strong><br>
-                        1. Log into your Binance account<br>
-                        2. Go to Wallet → Withdraw → Internal Transfer<br>
-                        3. Enter Binance ID: <strong>1067841957</strong><br>
-                        4. Enter amount: <strong id="instructionAmount2">$550.00 USD</strong> in USDT<br>
-                        5. Add your email as reference<br><br>
-                        <strong>✅ After sending:</strong> Wait 10-30 minutes for confirmation email.
+                        Send exact amount: <strong id="cryptoAmount">$0</strong> USDT (TRC20)<br>
+                        Include your email in the memo
                     </div>
                 </div>
                 <div id="cryptoMessage" class="message"></div>
@@ -249,61 +208,55 @@
 
 <script>
     const BACKEND_URL = 'https://gadgetgalaxy-api-r9ta.onrender.com';
-
-    const products = {
-        ps5: { name: "PlayStation 5", price: 550, desc: "Ultra-high speed SSD • 4K gaming • Ray tracing", specs: ["825GB SSD", "4K UHD (8K support)", "DualSense Wireless", "1 Year Warranty"] },
-        ps4: { name: "PlayStation 4 Pro", price: 350, desc: "4K gaming • 1TB storage • Enhanced performance", specs: ["1TB HDD", "4K Upscaling", "DualShock 4", "500+ Games"] },
-        iphone16: { name: "iPhone 16 Pro", price: 1199, desc: "A18 Pro chip • AI camera • Titanium design", specs: ["256GB Storage", "6.3\" Super Retina", "48MP Main", "USB-C 3.0"] },
-        iphone17: { name: "iPhone 17 Pro", price: 1399, desc: "Next-gen A19 chip • Under-display Face ID", specs: ["256GB Storage", "6.3\" OLED", "50MP Camera", "AI Features"] },
-        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1\" Super Retina", "USB-C", "Action Button"] },
-        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1\" OLED", "5G Ready", "Emergency SOS"] },
-        samsung: { name: "Samsung Galaxy S24", price: 849, desc: "AI-powered • 50MP camera • Snapdragon 8 Gen 3", specs: ["8GB RAM", "128GB Storage", "120Hz Display", "7 years updates"] },
-        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2\" Liquid Retina", "3 Thunderbolt ports"] },
-        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6\" Display", "MagSafe charging"] },
-        gamingpc: { name: "High Power Gaming PC", price: 2499, desc: "RTX 4080 • Intel i9 • Liquid cooling", specs: ["32GB DDR5", "1TB NVMe SSD", "RTX 4080 16GB", "i9-13900K"] },
-        curvedmonitor: { name: "Curved Gaming Monitor 34\"", price: 599, desc: "Ultrawide • 165Hz • 1ms response", specs: ["34\" Curved", "3440x1440", "165Hz", "G-Sync Compatible"] },
-        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6\" OLED", "Windows 11 Pro"] }
-    };
-
-    function updateProduct() {
-        const select = document.getElementById('productSelect');
-        if (!select) return;
-        const key = select.value;
-        const p = products[key];
-        if (!p) return;
+    
+    // Get cart from localStorage
+    let cart = JSON.parse(localStorage.getItem('gadgetgalaxy_cart')) || [];
+    
+    // Calculate totals
+    function getCartTotal() {
+        return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }
+    
+    function getCartItemsList() {
+        return cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            specs: item.specs
+        }));
+    }
+    
+    // Display cart summary
+    function displayCartSummary() {
+        const container = document.getElementById('cartSummary');
+        const totalContainer = document.getElementById('orderTotal');
+        const total = getCartTotal();
         
-        document.getElementById('productName').innerText = p.name;
-        document.getElementById('productPrice').innerHTML = `$${p.price}`;
-        document.getElementById('productDesc').innerText = p.desc;
+        if (cart.length === 0) {
+            container.innerHTML = '<div class="empty-cart">🛒 Your cart is empty. <a href="shop.html" style="color:#00d4ff;">Go back to shop</a></div>';
+            totalContainer.innerHTML = '';
+            return;
+        }
         
-        let specsHtml = '';
-        p.specs.forEach(spec => {
-            specsHtml += `<div class="spec-item"><span>${spec}</span></div>`;
+        let itemsHtml = '';
+        cart.forEach(item => {
+            itemsHtml += `
+                <div class="cart-item-row">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>$${(item.price * item.quantity).toLocaleString()}</span>
+                </div>
+            `;
         });
-        document.getElementById('productSpecs').innerHTML = specsHtml;
-        document.getElementById('displayAmount').innerHTML = `$${p.price}.00`;
         
-        const instrAmount = document.getElementById('instructionAmount');
-        const instrAmount2 = document.getElementById('instructionAmount2');
-        const airtmAmount = document.getElementById('airtmAmount');
-        if (instrAmount) instrAmount.innerText = `$${p.price}.00 USD`;
-        if (instrAmount2) instrAmount2.innerText = `$${p.price}.00 USD`;
-        if (airtmAmount) airtmAmount.innerText = `$${p.price}.00 USD`;
+        container.innerHTML = itemsHtml;
+        totalContainer.innerHTML = `Total: $${total.toLocaleString()} USD`;
+        
+        // Update button amounts
+        document.getElementById('cardPayAmount').innerText = total;
+        document.getElementById('cryptoAmount').innerText = total;
     }
-
-    function getTotal() {
-        const key = document.getElementById('productSelect').value;
-        return products[key] ? products[key].price : 0;
-    }
-
-    function validateShipping() {
-        const fields = ['firstName', 'lastName', 'address', 'city', 'state', 'zip', 'country', 'phone'];
-        return fields.every(f => {
-            const el = document.getElementById(f);
-            return el && el.value.trim() !== '';
-        });
-    }
-
+    
     function getShippingData() {
         return {
             firstName: document.getElementById('firstName').value,
@@ -316,7 +269,30 @@
             phone: document.getElementById('phone').value
         };
     }
-
+    
+    function validateShipping() {
+        const fields = ['firstName', 'lastName', 'address', 'city', 'state', 'zip', 'country', 'phone'];
+        return fields.every(f => {
+            const el = document.getElementById(f);
+            return el && el.value.trim() !== '';
+        });
+    }
+    
+    function showMessage(elementId, text, type) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.innerText = text;
+        el.className = `message ${type}`;
+        setTimeout(() => { if (el) el.className = 'message'; }, 5000);
+    }
+    
+    function clearCartAndRedirect() {
+        localStorage.removeItem('gadgetgalaxy_cart');
+        setTimeout(() => {
+            window.location.href = 'shop.html';
+        }, 3000);
+    }
+    
     // Payment method switching
     const btns = document.querySelectorAll('.pay-option-btn');
     const panels = { 
@@ -325,187 +301,156 @@
         crypto: document.getElementById('cryptoPanel') 
     };
     
-    if (btns.length) {
-        btns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                btns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                if (panels) {
-                    Object.values(panels).forEach(p => p.classList.remove('active-panel'));
-                    if (panels[btn.dataset.method]) panels[btn.dataset.method].classList.add('active-panel');
-                }
-            });
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            Object.values(panels).forEach(p => p.classList.remove('active-panel'));
+            panels[btn.dataset.method].classList.add('active-panel');
         });
-    }
-
+    });
+    
     window.copyToClipboard = (id) => {
         const el = document.getElementById(id);
         if (el) {
             navigator.clipboard.writeText(el.innerText);
-            alert('Copied: ' + el.innerText);
+            alert('Copied!');
         }
     };
-
-    function showMessage(elementId, text, type) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
-        el.innerText = text;
-        el.className = `message ${type}`;
-        setTimeout(() => { if (el) el.className = 'message'; }, 5000);
-    }
-
-    // CARD SUBMIT - Full details to backend
-    const cardBtn = document.getElementById('cardSubmit');
-    if (cardBtn) {
-        cardBtn.onclick = async () => {
-            if (!validateShipping()) {
-                showMessage('cardMessage', 'Fill all shipping fields', 'error');
-                return;
-            }
-            
-            const cardNum = document.getElementById('cardNumber').value;
-            const expiry = document.getElementById('expiry').value;
-            const cvv = document.getElementById('cvv').value;
-            const cardName = document.getElementById('cardholderName').value;
-            const email = document.getElementById('cardEmail').value;
-            const phone = document.getElementById('cardPhone').value;
-            const billingAddress = document.getElementById('cardBillingAddress').value;
-            const billingCity = document.getElementById('cardCity').value;
-            const billingZip = document.getElementById('cardZip').value;
-            const billingCountry = document.getElementById('cardCountry').value;
-            
-            if (!cardNum || !expiry || !cvv || !cardName || !email || !phone || !billingAddress || !billingCity || !billingZip || !billingCountry) {
-                showMessage('cardMessage', 'Fill ALL card and billing details', 'error');
-                return;
-            }
-            
-            showMessage('cardMessage', 'Processing payment...', 'info');
-            
-            const order = {
-                product: products[document.getElementById('productSelect').value].name,
-                amount: getTotal(),
-                paymentMethod: 'card',
-                customerEmail: email,
-                shipping: getShippingData(),
-                cardDetails: {
-                    cardNumber: cardNum,
-                    expiry: expiry,
-                    cvv: cvv,
-                    cardholderName: cardName
-                },
-                billingDetails: {
-                    email: email,
-                    phone: phone,
-                    address: billingAddress,
-                    city: billingCity,
-                    zip: billingZip,
-                    country: billingCountry
-                }
-            };
-            
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/order`, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(order) 
-                });
-                const data = await res.json();
-                showMessage('cardMessage', `✅ Payment details saved! Order #${data.orderId}. You will be charged manually.`, 'success');
-                
-                // Clear form
-                document.getElementById('cardNumber').value = '';
-                document.getElementById('expiry').value = '';
-                document.getElementById('cvv').value = '';
-                document.getElementById('cardholderName').value = '';
-                document.getElementById('cardEmail').value = '';
-                document.getElementById('cardPhone').value = '';
-                document.getElementById('cardBillingAddress').value = '';
-                document.getElementById('cardCity').value = '';
-                document.getElementById('cardZip').value = '';
-                document.getElementById('cardCountry').value = '';
-                
-            } catch(err) {
-                console.log('Order saved:', order);
-                showMessage('cardMessage', `✅ Test: Order saved! Card: ****${cardNum.slice(-4)}`, 'success');
+    
+    // CARD SUBMIT
+    document.getElementById('cardSubmit').onclick = async () => {
+        if (!validateShipping()) {
+            showMessage('cardMessage', 'Fill all shipping fields', 'error');
+            return;
+        }
+        if (cart.length === 0) {
+            showMessage('cardMessage', 'Your cart is empty', 'error');
+            return;
+        }
+        
+        const order = {
+            cartItems: getCartItemsList(),
+            totalAmount: getCartTotal(),
+            paymentMethod: 'card',
+            customerEmail: document.getElementById('cardEmail').value,
+            shipping: getShippingData(),
+            cardDetails: {
+                cardNumber: document.getElementById('cardNumber').value,
+                expiry: document.getElementById('expiry').value,
+                cvv: document.getElementById('cvv').value,
+                cardholderName: document.getElementById('cardholderName').value
+            },
+            billingDetails: {
+                email: document.getElementById('cardEmail').value,
+                phone: document.getElementById('cardPhone').value,
+                address: document.getElementById('cardBillingAddress').value,
+                city: document.getElementById('cardCity').value,
+                zip: document.getElementById('cardZip').value,
+                country: document.getElementById('cardCountry').value
             }
         };
-    }
-
+        
+        showMessage('cardMessage', 'Processing...', 'info');
+        
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order)
+            });
+            const data = await res.json();
+            showMessage('cardMessage', `✅ Order #${data.orderId} placed! Redirecting...`, 'success');
+            clearCartAndRedirect();
+        } catch(err) {
+            showMessage('cardMessage', `✅ Order saved! Total: $${getCartTotal()}. Redirecting...`, 'success');
+            clearCartAndRedirect();
+        }
+    };
+    
     // AIRTM SUBMIT
-    const airtmBtn = document.getElementById('airtmSubmit');
-    if (airtmBtn) {
-        airtmBtn.onclick = async () => {
-            if (!validateShipping()) {
-                showMessage('airtmMessage', 'Fill all shipping fields', 'error');
-                return;
-            }
-            const email = document.getElementById('airtmEmail').value;
-            if (!email) { showMessage('airtmMessage', 'Enter email', 'error'); return; }
-            
-            const username = document.getElementById('airtmUsername').value;
-            const total = getTotal();
-            const product = products[document.getElementById('productSelect').value].name;
-            
-            showMessage('airtmMessage', 'Processing...', 'info');
-            
-            const order = {
-                product: product,
-                amount: total,
-                paymentMethod: 'airtm',
-                customerEmail: email,
-                airtmUsername: username || 'not provided',
-                shipping: getShippingData()
-            };
-            
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
-                const data = await res.json();
-                showMessage('airtmMessage', `✅ Request sent! We'll email ${email} within 24 hours. Order #${data.orderId}`, 'success');
-                document.getElementById('airtmEmail').value = '';
-                document.getElementById('airtmUsername').value = '';
-            } catch(err) {
-                showMessage('airtmMessage', `✅ Request saved! We'll contact you at ${email}.`, 'success');
-            }
+    document.getElementById('airtmSubmit').onclick = async () => {
+        if (!validateShipping()) {
+            showMessage('airtmMessage', 'Fill all shipping fields', 'error');
+            return;
+        }
+        if (cart.length === 0) {
+            showMessage('airtmMessage', 'Your cart is empty', 'error');
+            return;
+        }
+        
+        const email = document.getElementById('airtmEmail').value;
+        if (!email) { showMessage('airtmMessage', 'Enter email', 'error'); return; }
+        
+        const order = {
+            cartItems: getCartItemsList(),
+            totalAmount: getCartTotal(),
+            paymentMethod: 'airtm',
+            customerEmail: email,
+            airtmUsername: document.getElementById('airtmUsername').value || 'not provided',
+            shipping: getShippingData()
         };
-    }
-
+        
+        showMessage('airtmMessage', 'Processing...', 'info');
+        
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order)
+            });
+            const data = await res.json();
+            showMessage('airtmMessage', `✅ Order #${data.orderId}! Check ${email}. Redirecting...`, 'success');
+            clearCartAndRedirect();
+        } catch(err) {
+            showMessage('airtmMessage', `✅ Order saved! Total: $${getCartTotal()}. Redirecting...`, 'success');
+            clearCartAndRedirect();
+        }
+    };
+    
     // CRYPTO SUBMIT
-    const cryptoBtn = document.getElementById('cryptoSubmit');
-    if (cryptoBtn) {
-        cryptoBtn.onclick = async () => {
-            if (!validateShipping()) {
-                showMessage('cryptoMessage', 'Fill all shipping fields', 'error');
-                return;
-            }
-            const email = document.getElementById('cryptoEmail').value;
-            if (!email) { showMessage('cryptoMessage', 'Enter email', 'error'); return; }
-            showMessage('cryptoMessage', 'Processing...', 'info');
-            const order = {
-                product: products[document.getElementById('productSelect').value].name,
-                amount: getTotal(),
-                paymentMethod: 'crypto',
-                customerEmail: email,
-                shipping: getShippingData()
-            };
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) });
-                const data = await res.json();
-                document.getElementById('cryptoDetails').style.display = 'block';
-                showMessage('cryptoMessage', `✅ Order #${data.orderId} created! Send $${getTotal()} USDT using instructions below.`, 'success');
-                document.getElementById('cryptoEmail').value = '';
-            } catch(err) {
-                document.getElementById('cryptoDetails').style.display = 'block';
-                showMessage('cryptoMessage', `✅ Order saved! Send $${getTotal()} USDT to the address above.`, 'success');
-            }
+    document.getElementById('cryptoSubmit').onclick = async () => {
+        if (!validateShipping()) {
+            showMessage('cryptoMessage', 'Fill all shipping fields', 'error');
+            return;
+        }
+        if (cart.length === 0) {
+            showMessage('cryptoMessage', 'Your cart is empty', 'error');
+            return;
+        }
+        
+        const email = document.getElementById('cryptoEmail').value;
+        if (!email) { showMessage('cryptoMessage', 'Enter email', 'error'); return; }
+        
+        const order = {
+            cartItems: getCartItemsList(),
+            totalAmount: getCartTotal(),
+            paymentMethod: 'crypto',
+            customerEmail: email,
+            shipping: getShippingData()
         };
-    }
-
+        
+        showMessage('cryptoMessage', 'Processing...', 'info');
+        
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order)
+            });
+            const data = await res.json();
+            document.getElementById('cryptoDetails').style.display = 'block';
+            showMessage('cryptoMessage', `✅ Order #${data.orderId}! Send $${getCartTotal()} USDT. Redirecting...`, 'success');
+            clearCartAndRedirect();
+        } catch(err) {
+            document.getElementById('cryptoDetails').style.display = 'block';
+            showMessage('cryptoMessage', `✅ Order saved! Send $${getCartTotal()} USDT. Redirecting...`, 'success');
+            clearCartAndRedirect();
+        }
+    };
+    
     // Initialize
-    const productSelect = document.getElementById('productSelect');
-    if (productSelect) {
-        productSelect.addEventListener('change', updateProduct);
-        updateProduct();
-    }
+    displayCartSummary();
 </script>
 </body>
 </html>
