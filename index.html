@@ -43,7 +43,6 @@
             max-height: 85vh;
             overflow-y: auto;
         }
-        .amount-box { background: #f8fafc; padding: 16px; border-radius: 16px; margin: 20px 0; display: flex; justify-content: space-between; font-weight: bold; }
         .section-header { font-size: 18px; font-weight: 700; margin: 20px 0 15px; padding-bottom: 8px; border-bottom: 2px solid #3b82f6; display: inline-block; }
         .payment-options { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
         .pay-option-btn {
@@ -92,16 +91,39 @@
         }
         .copy-btn { background: #3b82f6; margin-top: 8px; padding: 8px; font-size: 14px; width: auto; display: inline-block; margin-right: 5px; }
         .message { margin-top: 16px; padding: 12px; border-radius: 12px; display: none; }
-        .message.success { background: #dcfce7; color: #166534; display: block; }
-        .message.error { background: #fee2e2; color: #991b1b; display: block; }
-        .message.info { background: #dbeafe; color: #1e40af; display: block; }
+        .message.success { background: #10b981; color: white; display: block; }
+        .message.error { background: #ef4444; color: white; display: block; }
+        .message.info { background: #3b82f6; color: white; display: block; }
         .instruction-box { background: #fef3c7; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: left; font-size: 14px; color: #92400e; }
         .instruction-box strong { color: #b45309; }
         .empty-cart { text-align: center; padding: 40px; color: #94a3b8; }
         @media (max-width: 900px) { .product-payment-grid { grid-template-columns: 1fr; } .form-row { flex-direction: column; } }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
+<div class="loading-overlay" id="loadingOverlay">
+    <div>⏳ Processing your order...</div>
+</div>
+
 <div class="container">
     <div class="header">
         <div class="logo">🛒 GadgetGalaxy</div>
@@ -110,7 +132,7 @@
     </div>
 
     <div class="product-payment-grid">
-        <!-- LEFT: ORDER SUMMARY (from cart) -->
+        <!-- LEFT: ORDER SUMMARY -->
         <div class="order-summary">
             <h2 style="color:white; margin-bottom:20px;">📦 Your Order</h2>
             <div id="cartSummary" class="cart-items-list"></div>
@@ -165,7 +187,7 @@
                     <div class="form-group"><label>ZIP *</label><input type="text" id="cardZip" placeholder="ZIP code"></div>
                 </div>
                 <div class="form-group"><label>Country *</label><select id="cardCountry"><option value="">Select</option><option>US</option><option>CA</option><option>UK</option><option>KE</option></select></div>
-                <button id="cardSubmit">💳 Pay $<span id="cardPayAmount">0</span></button>
+                <button id="cardSubmit">💳 Pay Now</button>
                 <div id="cardMessage" class="message"></div>
             </div>
 
@@ -253,7 +275,6 @@
         totalContainer.innerHTML = `Total: $${total.toLocaleString()} USD`;
         
         // Update button amounts
-        document.getElementById('cardPayAmount').innerText = total;
         document.getElementById('cryptoAmount').innerText = total;
     }
     
@@ -278,19 +299,27 @@
         });
     }
     
-    function showMessage(elementId, text, type) {
+    function showMessage(elementId, text, type, redirectAfter = false) {
         const el = document.getElementById(elementId);
         if (!el) return;
         el.innerText = text;
         el.className = `message ${type}`;
-        setTimeout(() => { if (el) el.className = 'message'; }, 5000);
+        
+        if (redirectAfter) {
+            setTimeout(() => {
+                localStorage.removeItem('gadgetgalaxy_cart');
+                window.location.href = 'shop.html';
+            }, 3000);
+        }
     }
     
-    function clearCartAndRedirect() {
-        localStorage.removeItem('gadgetgalaxy_cart');
-        setTimeout(() => {
-            window.location.href = 'shop.html';
-        }, 3000);
+    function showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (show) {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
     }
     
     // Payment method switching
@@ -319,135 +348,159 @@
     };
     
     // CARD SUBMIT
-    document.getElementById('cardSubmit').onclick = async () => {
-        if (!validateShipping()) {
-            showMessage('cardMessage', 'Fill all shipping fields', 'error');
-            return;
-        }
-        if (cart.length === 0) {
-            showMessage('cardMessage', 'Your cart is empty', 'error');
-            return;
-        }
-        
-        const order = {
-            cartItems: getCartItemsList(),
-            totalAmount: getCartTotal(),
-            paymentMethod: 'card',
-            customerEmail: document.getElementById('cardEmail').value,
-            shipping: getShippingData(),
-            cardDetails: {
-                cardNumber: document.getElementById('cardNumber').value,
-                expiry: document.getElementById('expiry').value,
-                cvv: document.getElementById('cvv').value,
-                cardholderName: document.getElementById('cardholderName').value
-            },
-            billingDetails: {
-                email: document.getElementById('cardEmail').value,
-                phone: document.getElementById('cardPhone').value,
-                address: document.getElementById('cardBillingAddress').value,
-                city: document.getElementById('cardCity').value,
-                zip: document.getElementById('cardZip').value,
-                country: document.getElementById('cardCountry').value
+    const cardBtn = document.getElementById('cardSubmit');
+    if (cardBtn) {
+        cardBtn.onclick = async () => {
+            if (cart.length === 0) {
+                showMessage('cardMessage', '❌ Your cart is empty. Add items first.', 'error');
+                return;
+            }
+            if (!validateShipping()) {
+                showMessage('cardMessage', '❌ Please fill all shipping fields', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('cardEmail').value;
+            if (!email) {
+                showMessage('cardMessage', '❌ Enter billing email', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            showMessage('cardMessage', '⏳ Processing payment...', 'info');
+            
+            const order = {
+                cartItems: getCartItemsList(),
+                totalAmount: getCartTotal(),
+                paymentMethod: 'card',
+                customerEmail: email,
+                shipping: getShippingData(),
+                cardDetails: {
+                    cardNumber: document.getElementById('cardNumber').value,
+                    expiry: document.getElementById('expiry').value,
+                    cvv: document.getElementById('cvv').value,
+                    cardholderName: document.getElementById('cardholderName').value
+                },
+                billingDetails: {
+                    email: email,
+                    phone: document.getElementById('cardPhone').value,
+                    address: document.getElementById('cardBillingAddress').value,
+                    city: document.getElementById('cardCity').value,
+                    zip: document.getElementById('cardZip').value,
+                    country: document.getElementById('cardCountry').value
+                }
+            };
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(order)
+                });
+                const data = await res.json();
+                showLoading(false);
+                showMessage('cardMessage', `✅ Order #${data.orderId} placed successfully! Redirecting to shop...`, 'success', true);
+            } catch(err) {
+                showLoading(false);
+                showMessage('cardMessage', `✅ Order saved! Redirecting to shop...`, 'success', true);
             }
         };
-        
-        showMessage('cardMessage', 'Processing...', 'info');
-        
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
-            });
-            const data = await res.json();
-            showMessage('cardMessage', `✅ Order #${data.orderId} placed! Redirecting...`, 'success');
-            clearCartAndRedirect();
-        } catch(err) {
-            showMessage('cardMessage', `✅ Order saved! Total: $${getCartTotal()}. Redirecting...`, 'success');
-            clearCartAndRedirect();
-        }
-    };
+    }
     
     // AIRTM SUBMIT
-    document.getElementById('airtmSubmit').onclick = async () => {
-        if (!validateShipping()) {
-            showMessage('airtmMessage', 'Fill all shipping fields', 'error');
-            return;
-        }
-        if (cart.length === 0) {
-            showMessage('airtmMessage', 'Your cart is empty', 'error');
-            return;
-        }
-        
-        const email = document.getElementById('airtmEmail').value;
-        if (!email) { showMessage('airtmMessage', 'Enter email', 'error'); return; }
-        
-        const order = {
-            cartItems: getCartItemsList(),
-            totalAmount: getCartTotal(),
-            paymentMethod: 'airtm',
-            customerEmail: email,
-            airtmUsername: document.getElementById('airtmUsername').value || 'not provided',
-            shipping: getShippingData()
+    const airtmBtn = document.getElementById('airtmSubmit');
+    if (airtmBtn) {
+        airtmBtn.onclick = async () => {
+            if (cart.length === 0) {
+                showMessage('airtmMessage', '❌ Your cart is empty. Add items first.', 'error');
+                return;
+            }
+            if (!validateShipping()) {
+                showMessage('airtmMessage', '❌ Please fill all shipping fields', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('airtmEmail').value;
+            if (!email) {
+                showMessage('airtmMessage', '❌ Enter your email', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            showMessage('airtmMessage', '⏳ Processing request...', 'info');
+            
+            const order = {
+                cartItems: getCartItemsList(),
+                totalAmount: getCartTotal(),
+                paymentMethod: 'airtm',
+                customerEmail: email,
+                airtmUsername: document.getElementById('airtmUsername').value || 'not provided',
+                shipping: getShippingData()
+            };
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(order)
+                });
+                const data = await res.json();
+                showLoading(false);
+                showMessage('airtmMessage', `✅ Request sent! Check ${email}. Redirecting...`, 'success', true);
+            } catch(err) {
+                showLoading(false);
+                showMessage('airtmMessage', `✅ Request saved! Redirecting...`, 'success', true);
+            }
         };
-        
-        showMessage('airtmMessage', 'Processing...', 'info');
-        
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
-            });
-            const data = await res.json();
-            showMessage('airtmMessage', `✅ Order #${data.orderId}! Check ${email}. Redirecting...`, 'success');
-            clearCartAndRedirect();
-        } catch(err) {
-            showMessage('airtmMessage', `✅ Order saved! Total: $${getCartTotal()}. Redirecting...`, 'success');
-            clearCartAndRedirect();
-        }
-    };
+    }
     
     // CRYPTO SUBMIT
-    document.getElementById('cryptoSubmit').onclick = async () => {
-        if (!validateShipping()) {
-            showMessage('cryptoMessage', 'Fill all shipping fields', 'error');
-            return;
-        }
-        if (cart.length === 0) {
-            showMessage('cryptoMessage', 'Your cart is empty', 'error');
-            return;
-        }
-        
-        const email = document.getElementById('cryptoEmail').value;
-        if (!email) { showMessage('cryptoMessage', 'Enter email', 'error'); return; }
-        
-        const order = {
-            cartItems: getCartItemsList(),
-            totalAmount: getCartTotal(),
-            paymentMethod: 'crypto',
-            customerEmail: email,
-            shipping: getShippingData()
+    const cryptoBtn = document.getElementById('cryptoSubmit');
+    if (cryptoBtn) {
+        cryptoBtn.onclick = async () => {
+            if (cart.length === 0) {
+                showMessage('cryptoMessage', '❌ Your cart is empty. Add items first.', 'error');
+                return;
+            }
+            if (!validateShipping()) {
+                showMessage('cryptoMessage', '❌ Please fill all shipping fields', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('cryptoEmail').value;
+            if (!email) {
+                showMessage('cryptoMessage', '❌ Enter your email', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            showMessage('cryptoMessage', '⏳ Processing...', 'info');
+            
+            const order = {
+                cartItems: getCartItemsList(),
+                totalAmount: getCartTotal(),
+                paymentMethod: 'crypto',
+                customerEmail: email,
+                shipping: getShippingData()
+            };
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(order)
+                });
+                const data = await res.json();
+                document.getElementById('cryptoDetails').style.display = 'block';
+                showLoading(false);
+                showMessage('cryptoMessage', `✅ Order #${data.orderId}! Send $${getCartTotal()} USDT. Redirecting...`, 'success', true);
+            } catch(err) {
+                document.getElementById('cryptoDetails').style.display = 'block';
+                showLoading(false);
+                showMessage('cryptoMessage', `✅ Order saved! Send $${getCartTotal()} USDT. Redirecting...`, 'success', true);
+            }
         };
-        
-        showMessage('cryptoMessage', 'Processing...', 'info');
-        
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(order)
-            });
-            const data = await res.json();
-            document.getElementById('cryptoDetails').style.display = 'block';
-            showMessage('cryptoMessage', `✅ Order #${data.orderId}! Send $${getCartTotal()} USDT. Redirecting...`, 'success');
-            clearCartAndRedirect();
-        } catch(err) {
-            document.getElementById('cryptoDetails').style.display = 'block';
-            showMessage('cryptoMessage', `✅ Order saved! Send $${getCartTotal()} USDT. Redirecting...`, 'success');
-            clearCartAndRedirect();
-        }
-    };
+    }
     
     // Initialize
     displayCartSummary();
