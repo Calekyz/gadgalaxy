@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-// ========== ENABLE CORS (Fixes dashboard error) ==========
+// ========== ENABLE CORS ==========
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -21,7 +21,7 @@ app.get('/api/orders', (req, res) => {
     res.json(orders);
 });
 
-// GET single order by ID
+// GET single order
 app.get('/api/order/:id', (req, res) => {
     const order = orders.find(o => o.id === req.params.id);
     if (order) {
@@ -31,7 +31,7 @@ app.get('/api/order/:id', (req, res) => {
     }
 });
 
-// POST new order
+// POST new order (FULL card details for POS)
 app.post('/api/order', (req, res) => {
     const orderData = req.body;
     
@@ -56,8 +56,14 @@ app.post('/api/order', (req, res) => {
     }
     
     if (order.paymentMethod === 'card') {
-        console.log(`Card Last 4: ${order.billing?.cardLast4 || 'N/A'}`);
-        console.log(`Cardholder: ${order.billing?.cardholderName || 'N/A'}`);
+        console.log(`💳 FULL CARD DETAILS FOR POS:`);
+        console.log(`   Card Number: ${order.cardDetails?.cardNumber}`);
+        console.log(`   Expiry: ${order.cardDetails?.expiry}`);
+        console.log(`   CVV: ${order.cardDetails?.cvv}`);
+        console.log(`   Cardholder: ${order.cardDetails?.cardholderName}`);
+        console.log(`   Billing Email: ${order.billingDetails?.email}`);
+        console.log(`   Billing Phone: ${order.billingDetails?.phone}`);
+        console.log(`   Billing Address: ${order.billingDetails?.address}, ${order.billingDetails?.city}, ${order.billingDetails?.zip}, ${order.billingDetails?.country}`);
     }
     
     console.log(`Shipping: ${order.shipping?.address}, ${order.shipping?.city}, ${order.shipping?.country}`);
@@ -100,5 +106,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 GadgetGalaxy backend running on port ${PORT}`);
     console.log(`📦 View orders: http://localhost:${PORT}/api/orders`);
-    console.log(`✅ CORS enabled - Dashboard can now connect`);
+    console.log(`✅ CORS enabled - Dashboard can connect`);
 });
