@@ -204,15 +204,18 @@
 </div>
 
 <script>
+    // BACKEND URL (YOUR RENDER LINK)
+    const BACKEND_URL = 'https://gadgetgalaxy-api-r9ta.onrender.com';
+
     // PRODUCT DATABASE
     const products = {
         ps5: { name: "PlayStation 5", price: 550, desc: "Ultra-high speed SSD • 4K gaming • Ray tracing", specs: ["825GB SSD", "4K UHD (8K support)", "DualSense Wireless", "1 Year Warranty"] },
-        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1" Super Retina", "USB-C", "Action Button"] },
-        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1" OLED", "5G Ready", "Emergency SOS"] },
-        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2" Liquid Retina", "3 Thunderbolt ports"] },
-        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6" Display", "MagSafe charging"] },
+        iphone15: { name: "iPhone 15 Pro", price: 999, desc: "A17 Pro chip • Titanium design • 48MP camera", specs: ["256GB Storage", "6.1\" Super Retina", "USB-C", "Action Button"] },
+        iphone14: { name: "iPhone 14", price: 699, desc: "A15 Bionic • Dual-camera • Crash Detection", specs: ["128GB Storage", "6.1\" OLED", "5G Ready", "Emergency SOS"] },
+        macbook: { name: "MacBook Pro M3", price: 1599, desc: "M3 chip • 14-core GPU • 18hr battery", specs: ["16GB RAM", "512GB SSD", "14.2\" Liquid Retina", "3 Thunderbolt ports"] },
+        macbookair: { name: "MacBook Air M2", price: 1099, desc: "M2 chip • Fanless design • All-day battery", specs: ["8GB RAM", "256GB SSD", "13.6\" Display", "MagSafe charging"] },
         samsung: { name: "Samsung Galaxy S24", price: 849, desc: "AI-powered • 50MP camera • Snapdragon 8 Gen 3", specs: ["8GB RAM", "128GB Storage", "120Hz Display", "7 years updates"] },
-        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6" OLED", "Windows 11 Pro"] }
+        dell: { name: "Dell XPS 15", price: 1399, desc: "Intel i7 • RTX 4050 • 3.5K OLED", specs: ["16GB RAM", "512GB SSD", "15.6\" OLED", "Windows 11 Pro"] }
     };
 
     function updateProduct() {
@@ -222,7 +225,6 @@
         document.getElementById('productPrice').innerHTML = `$${p.price}`;
         document.getElementById('productDesc').innerText = p.desc;
         
-        // Build specs HTML
         let specsHtml = '';
         p.specs.forEach(spec => {
             specsHtml += `<div class="spec-item"><span>${spec}</span></div>`;
@@ -286,7 +288,7 @@
         setTimeout(() => { el.className = 'message'; }, 5000);
     }
 
-    // CARD SUBMIT (with billing)
+    // CARD SUBMIT
     document.getElementById('cardSubmit').onclick = async () => {
         if (!validateShipping()) {
             showMessage('cardMessage', 'Fill all shipping fields', 'error');
@@ -320,7 +322,7 @@
         };
         
         try {
-            const res = await fetch('https://gadgetgalaxy-api-r9ta.onrender.com', {
+            const res = await fetch(`${BACKEND_URL}/api/order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(order)
@@ -328,7 +330,7 @@
             const data = await res.json();
             showMessage('cardMessage', `Payment successful! Order #${data.orderId}. Confirmation sent to ${email}`, 'success');
         } catch(err) {
-            console.log('Order saved:', order);
+            console.log('Order saved locally:', order);
             showMessage('cardMessage', 'Test mode: Card charged $' + getTotal() + '. Order saved.', 'success');
         }
     };
@@ -352,7 +354,7 @@
         };
         
         try {
-            const res = await fetch('https://gadgetgalaxy-api-r9ta.onrender.com', {
+            const res = await fetch(`${BACKEND_URL}/api/order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(order)
@@ -360,7 +362,7 @@
             const data = await res.json();
             showMessage('airtmMessage', `Order #${data.orderId} created! Check ${email} for payment request.`, 'success');
         } catch(err) {
-            console.log('Order saved:', order);
+            console.log('Order saved locally:', order);
             showMessage('airtmMessage', 'Backend not connected. Order saved locally.', 'success');
         }
     };
@@ -384,7 +386,7 @@
         };
         
         try {
-            const res = await fetch('https://gadgetgalaxy-api-r9ta.onrender.com', {
+            const res = await fetch(`${BACKEND_URL}/api/order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(order)
@@ -393,7 +395,7 @@
             document.getElementById('cryptoDetails').style.display = 'block';
             showMessage('cryptoMessage', `Order #${data.orderId} created! Send $${getTotal()} USDT to address below.`, 'success');
         } catch(err) {
-            console.log('Order saved:', order);
+            console.log('Order saved locally:', order);
             document.getElementById('cryptoDetails').style.display = 'block';
             showMessage('cryptoMessage', 'Backend not connected. Save this address.', 'success');
         }
