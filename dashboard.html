@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Orders</title></head>
+<body>
+<h2>GadgetGalaxy Orders</h2>
+<pre id="orders"></pre>
+<script>
+fetch('https://gadgetgalaxy-api-r9ta.onrender.com/api/orders')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('orders').innerHTML = JSON.stringify(data, null, 2);
+  });
+</script>
+</body>
+</html>
