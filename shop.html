@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GadgetGalaxy | Premium Electronics Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+        }
+
+        .logo span {
+            background: none;
+            color: #0f172a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #475569;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #00d4ff;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #0f172a;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Category Filters */
+        .categories {
+            max-width: 1400px;
+            margin: -2rem auto 2rem;
+            padding: 0 2rem;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 60px;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.5rem;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-btn.active {
+            background: #00d4ff;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: #cbd5e1;
+        }
+
+        /* Products Grid */
+        .products-section {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: #00d4ff;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-category {
+            font-size: 0.75rem;
+            color: #00d4ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0.5rem 0;
+        }
+
+        .product-price small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        .buy-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .buy-btn:hover {
+            background: #00d4ff;
+            color: #0f172a;
+        }
+
+        /* Cart Sidebar */
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-overlay.open {
+            right: 0;
+        }
+
+        .cart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 600;
+        }
+
+        .cart-item-price {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+        }
+
+        .cart-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #00d4ff;
+            color: #0f172a;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .checkout-btn:hover {
+            background: #0f172a;
+            color: white;
+        }
+
+        /* Scroll Buttons */
+        .scroll-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .scroll-left {
+            left: -20px;
+        }
+
+        .scroll-right {
+            right: -20px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+            }
+            .filter-bar {
+                border-radius: 20px;
+                justify-content: center;
+            }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="nav-container">
+            <a href="#" class="logo">GADGET<span>GALAXY</span></a>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#products">Shop</a>
+                <a href="#">Deals</a>
+                <a href="#">Support</a>
+                <div class="cart-icon" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>Welcome to GadgetGalaxy</h1>
+        <p>Premium phones, computers, and gaming gear. Free shipping on orders over $500.</p>
+    </div>
+
+    <div class="categories">
+        <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active" data-category="all">All Products</button>
+            <button class="filter-btn" data-category="gaming">🎮 Gaming</button>
+            <button class="filter-btn" data-category="phones">📱 Phones</button>
+            <button class="filter-btn" data-category="computers">💻 Computers</button>
+            <button class="filter-btn" data-category="monitors">🖥️ Monitors</button>
+        </div>
+    </div>
+
+    <div class="products-section" id="products">
+        <div class="section-title">
+            <i class="fas fa-fire"></i>
+            <span>Latest Arrivals</span>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartSidebar">
+        <div class="cart-header">
+            <h2><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+            <button class="close-cart" onclick="toggleCart()">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">$0</span>
+            </div>
+            <a href="index.html" class="checkout-btn">Proceed to Checkout →</a>
+        </div>
+    </div>
+
+    <script>
+        // PRODUCT DATABASE
+        const products = [
+            { id: 1, name: "PlayStation 5", price: 550, category: "gaming", icon: "🎮", specs: "825GB SSD • 4K Gaming" },
+            { id: 2, name: "PlayStation 4 Pro", price: 350, category: "gaming", icon: "🎮", specs: "1TB HDD • 4K Upscaling" },
+            { id: 3, name: "iPhone 16 Pro", price: 1199, category: "phones", icon: "📱", specs: "A18 Pro • 256GB • Titanium" },
+            { id: 4, name: "iPhone 17 Pro", price: 1399, category: "phones", icon: "📱", specs: "A19 Chip • Under-display Face ID" },
+            { id: 5, name: "iPhone 15 Pro", price: 999, category: "phones", icon: "📱", specs: "A17 Pro • 48MP Camera" },
+            { id: 6, name: "iPhone 14", price: 699, category: "phones", icon: "📱", specs: "A15 Bionic • Dual Camera" },
+            { id: 7, name: "Samsung Galaxy S24", price: 849, category: "phones", icon: "📱", specs: "AI-Powered • 50MP Camera" },
+            { id: 8, name: "MacBook Pro M3", price: 1599, category: "computers", icon: "💻", specs: "M3 Chip • 16GB RAM • 512GB SSD" },
+            { id: 9, name: "MacBook Air M2", price: 1099, category: "computers", icon: "💻", specs: "M2 Chip • 8GB RAM • 256GB SSD" },
+            { id: 10, name: "High Power Gaming PC", price: 2499, category: "computers", icon: "🖥️", specs: "RTX 4080 • i9 • 32GB RAM" },
+            { id: 11, name: "Dell XPS 15", price: 1399, category: "computers", icon: "💻", specs: "Intel i7 • RTX 4050 • OLED" },
+            { id: 12, name: "Curved Gaming Monitor 34\"", price: 599, category: "monitors", icon: "🖥️", specs: "3440x1440 • 165Hz • 1ms" }
+        ];
+
+        // Cart state
+        let cart = JSON.parse(localStorage.getItem('gadgetgalaxy_cart')) || [];
+
+        // DOM Elements
+        const productsGrid = document.getElementById('productsGrid');
+        const cartItemsEl = document.getElementById('cartItems');
+        const cartCountEl = document.getElementById('cartCount');
+        const cartTotalEl = document.getElementById('cartTotal');
+        let currentFilter = 'all';
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('gadgetgalaxy_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
+            saveCart();
+            showToast(`${product.name} added to cart!`);
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveCart();
+            showToast('Item removed from cart');
+        }
+
+        // Update quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    saveCart();
+                }
+            }
+        }
+
+        // Update cart UI
+        function updateCartUI() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartCountEl.textContent = totalItems;
+            cartTotalEl.textContent = `$${totalPrice.toLocaleString()}`;
+            
+            if (cartItemsEl) {
+                if (cart.length === 0) {
+                    cartItemsEl.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8;">Your cart is empty</div>';
+                } else {
+                    cartItemsEl.innerHTML = cart.map(item => `
+                        <div class="cart-item">
+                            <div class="cart-item-image">${item.icon}</div>
+                            <div class="cart-item-details">
+                                <div class="cart-item-title">${item.name}</div>
+                                <div class="cart-item-price">$${item.price}</div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                    <button onclick="updateQuantity(${item.id}, -1)" style="background:#f1f5f9; border:none; width:28px; border-radius:8px; cursor:pointer;">-</button>
+                                    <span>${item.quantity}</span>
+                                    <button onclick="updateQuantity(${item.id}, 1)" style="background:#f1f5f9; border:none; width:28px; border-radius:8px; cursor:pointer;">+</button>
+                                </div>
+                            </div>
+                            <button class="cart-item-remove" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        // Render products grid
+        function renderProducts() {
+            const filtered = currentFilter === 'all' 
+                ? products 
+                : products.filter(p => p.category === currentFilter);
+            
+            productsGrid.innerHTML = filtered.map(product => `
+                <div class="product-card">
+                    <div class="product-image">${product.icon}</div>
+                    <div class="product-info">
+                        <div class="product-category">${product.category.toUpperCase()}</div>
+                        <div class="product-title">${product.name}</div>
+                        <div class="product-price">$${product.price} <small>USD</small></div>
+                        <div style="font-size:0.8rem; color:#64748b; margin:0.5rem 0;">${product.specs}</div>
+                        <button class="buy-btn" onclick="addToCart(${product.id})">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter products
+        function setFilter(category) {
+            currentFilter = category;
+            renderProducts();
+            
+            // Update active button style
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Toggle cart sidebar
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Close cart when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('cartSidebar');
+            const cartIcon = e.target.closest('.cart-icon');
+            const sidebarContent = e.target.closest('.cart-overlay');
+            
+            if (sidebar.classList.contains('open') && !cartIcon && !sidebarContent) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Initialize
+        renderProducts();
+        updateCartUI();
+        
+        // Filter button event listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => setFilter(btn.dataset.category));
+        });
+    </script>
+</body>
+</html>
