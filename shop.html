@@ -54,6 +54,41 @@
             color: #0f172a;
         }
 
+        /* Search Bar */
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .search-box:focus-within {
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+        }
+
+        .search-box i {
+            color: #94a3b8;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
         .nav-links {
             display: flex;
             gap: 2rem;
@@ -189,12 +224,9 @@
         }
 
         .product-image {
-            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
             height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5rem;
+            width: 100%;
+            object-fit: cover;
         }
 
         .product-info {
@@ -245,6 +277,81 @@
         .buy-btn:hover {
             background: #00d4ff;
             color: #0f172a;
+        }
+
+        /* Product Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1002;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        .modal-details h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-price {
+            font-size: 2rem;
+            color: #00d4ff;
+            font-weight: 800;
+            margin: 1rem 0;
+        }
+
+        .modal-specs {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
         }
 
         /* Cart Sidebar */
@@ -302,12 +409,8 @@
         .cart-item-image {
             width: 60px;
             height: 60px;
-            background: #f1f5f9;
+            object-fit: cover;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
         }
 
         .cart-item-details {
@@ -363,35 +466,6 @@
             color: white;
         }
 
-        /* Scroll Buttons */
-        .scroll-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .scroll-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .scroll-left {
-            left: -20px;
-        }
-
-        .scroll-right {
-            right: -20px;
-        }
-
         /* Toast Notification */
         .toast {
             position: fixed;
@@ -410,10 +484,20 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
+            }
+            .search-container {
+                max-width: 100%;
+                width: 100%;
             }
             .filter-bar {
                 border-radius: 20px;
@@ -429,11 +513,18 @@
     <div class="header">
         <div class="nav-container">
             <a href="#" class="logo">GADGET<span>GALAXY</span></a>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search products...">
+                </div>
+            </div>
+
             <div class="nav-links">
                 <a href="#">Home</a>
                 <a href="#products">Shop</a>
                 <a href="#">Deals</a>
-                <a href="#">Support</a>
                 <div class="cart-icon" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
@@ -465,6 +556,14 @@
         <div class="products-grid" id="productsGrid"></div>
     </div>
 
+    <!-- Product Details Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
     <!-- Cart Sidebar -->
     <div class="cart-overlay" id="cartSidebar">
         <div class="cart-header">
@@ -482,31 +581,33 @@
     </div>
 
     <script>
-        // PRODUCT DATABASE
+        // PRODUCT DATABASE WITH REAL IMAGES
         const products = [
-            { id: 1, name: "PlayStation 5", price: 550, category: "gaming", icon: "🎮", specs: "825GB SSD • 4K Gaming" },
-            { id: 2, name: "PlayStation 4 Pro", price: 350, category: "gaming", icon: "🎮", specs: "1TB HDD • 4K Upscaling" },
-            { id: 3, name: "iPhone 16 Pro", price: 1199, category: "phones", icon: "📱", specs: "A18 Pro • 256GB • Titanium" },
-            { id: 4, name: "iPhone 17 Pro", price: 1399, category: "phones", icon: "📱", specs: "A19 Chip • Under-display Face ID" },
-            { id: 5, name: "iPhone 15 Pro", price: 999, category: "phones", icon: "📱", specs: "A17 Pro • 48MP Camera" },
-            { id: 6, name: "iPhone 14", price: 699, category: "phones", icon: "📱", specs: "A15 Bionic • Dual Camera" },
-            { id: 7, name: "Samsung Galaxy S24", price: 849, category: "phones", icon: "📱", specs: "AI-Powered • 50MP Camera" },
-            { id: 8, name: "MacBook Pro M3", price: 1599, category: "computers", icon: "💻", specs: "M3 Chip • 16GB RAM • 512GB SSD" },
-            { id: 9, name: "MacBook Air M2", price: 1099, category: "computers", icon: "💻", specs: "M2 Chip • 8GB RAM • 256GB SSD" },
-            { id: 10, name: "High Power Gaming PC", price: 2499, category: "computers", icon: "🖥️", specs: "RTX 4080 • i9 • 32GB RAM" },
-            { id: 11, name: "Dell XPS 15", price: 1399, category: "computers", icon: "💻", specs: "Intel i7 • RTX 4050 • OLED" },
-            { id: 12, name: "Curved Gaming Monitor 34\"", price: 599, category: "monitors", icon: "🖥️", specs: "3440x1440 • 165Hz • 1ms" }
+            { id: 1, name: "PlayStation 5", price: 550, category: "gaming", image: "https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400", specs: "825GB SSD • 4K Gaming • Ray Tracing • DualSense Controller" },
+            { id: 2, name: "PlayStation 4 Pro", price: 350, category: "gaming", image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400", specs: "1TB HDD • 4K Upscaling • 500+ Games • DualShock 4" },
+            { id: 3, name: "iPhone 16 Pro", price: 1199, category: "phones", image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400", specs: "A18 Pro Chip • 256GB Storage • Titanium Design • 48MP Camera" },
+            { id: 4, name: "iPhone 17 Pro", price: 1399, category: "phones", image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400", specs: "A19 Chip • Under-display Face ID • 512GB • AI Features" },
+            { id: 5, name: "iPhone 15 Pro", price: 999, category: "phones", image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400", specs: "A17 Pro Chip • 256GB • 48MP Camera • USB-C" },
+            { id: 6, name: "iPhone 14", price: 699, category: "phones", image: "https://images.unsplash.com/photo-1678652197831-2d180705cd2c?w=400", specs: "A15 Bionic • 128GB • Dual Camera • Crash Detection" },
+            { id: 7, name: "Samsung Galaxy S24", price: 849, category: "phones", image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400", specs: "AI-Powered • 50MP Camera • Snapdragon 8 Gen 3 • 120Hz Display" },
+            { id: 8, name: "MacBook Pro M3", price: 1599, category: "computers", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400", specs: "M3 Chip • 16GB RAM • 512GB SSD • 18hr Battery" },
+            { id: 9, name: "MacBook Air M2", price: 1099, category: "computers", image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400", specs: "M2 Chip • 8GB RAM • 256GB SSD • Fanless Design" },
+            { id: 10, name: "High Power Gaming PC", price: 2499, category: "computers", image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400", specs: "RTX 4080 • Intel i9 • 32GB DDR5 • 1TB NVMe" },
+            { id: 11, name: "Dell XPS 15", price: 1399, category: "computers", image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400", specs: "Intel i7 • RTX 4050 • 16GB RAM • 3.5K OLED" },
+            { id: 12, name: "Curved Gaming Monitor 34\"", price: 599, category: "monitors", image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400", specs: "3440x1440 • 165Hz • 1ms Response • G-Sync Compatible" }
         ];
 
         // Cart state
         let cart = JSON.parse(localStorage.getItem('gadgetgalaxy_cart')) || [];
+        let currentFilter = 'all';
+        let currentSearch = '';
 
         // DOM Elements
         const productsGrid = document.getElementById('productsGrid');
         const cartItemsEl = document.getElementById('cartItems');
         const cartCountEl = document.getElementById('cartCount');
         const cartTotalEl = document.getElementById('cartTotal');
-        let currentFilter = 'all';
+        const searchInput = document.getElementById('searchInput');
 
         // Save cart to localStorage
         function saveCart() {
@@ -563,7 +664,7 @@
                 } else {
                     cartItemsEl.innerHTML = cart.map(item => `
                         <div class="cart-item">
-                            <div class="cart-item-image">${item.icon}</div>
+                            <img class="cart-item-image" src="${item.image}" alt="${item.name}">
                             <div class="cart-item-details">
                                 <div class="cart-item-title">${item.name}</div>
                                 <div class="cart-item-price">$${item.price}</div>
@@ -580,21 +681,65 @@
             }
         }
 
+        // Open product details modal
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            const modal = document.getElementById('productModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <img class="modal-image" src="${product.image}" alt="${product.name}">
+                <div class="modal-details">
+                    <h2>${product.name}</h2>
+                    <div class="modal-price">$${product.price} USD</div>
+                    <div class="modal-specs">
+                        <strong>📋 Specifications:</strong><br>
+                        ${product.specs}
+                    </div>
+                    <button class="buy-btn" onclick="addToCart(${product.id}); closeModal();">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('productModal').classList.remove('active');
+        }
+
         // Render products grid
         function renderProducts() {
-            const filtered = currentFilter === 'all' 
-                ? products 
-                : products.filter(p => p.category === currentFilter);
+            let filtered = products;
+            
+            // Apply category filter
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(p => p.category === currentFilter);
+            }
+            
+            // Apply search filter
+            if (currentSearch) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    p.category.toLowerCase().includes(currentSearch.toLowerCase())
+                );
+            }
+            
+            if (filtered.length === 0) {
+                productsGrid.innerHTML = `<div class="no-results">🔍 No products found matching "${currentSearch}"</div>`;
+                return;
+            }
             
             productsGrid.innerHTML = filtered.map(product => `
-                <div class="product-card">
-                    <div class="product-image">${product.icon}</div>
+                <div class="product-card" onclick="openProductModal(${product.id})">
+                    <img class="product-image" src="${product.image}" alt="${product.name}">
                     <div class="product-info">
                         <div class="product-category">${product.category.toUpperCase()}</div>
                         <div class="product-title">${product.name}</div>
                         <div class="product-price">$${product.price} <small>USD</small></div>
-                        <div style="font-size:0.8rem; color:#64748b; margin:0.5rem 0;">${product.specs}</div>
-                        <button class="buy-btn" onclick="addToCart(${product.id})">
+                        <div style="font-size:0.8rem; color:#64748b; margin:0.5rem 0;">${product.specs.substring(0, 60)}...</div>
+                        <button class="buy-btn" onclick="event.stopPropagation(); addToCart(${product.id})">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                     </div>
@@ -602,12 +747,11 @@
             `).join('');
         }
 
-        // Filter products
+        // Set filter
         function setFilter(category) {
             currentFilter = category;
             renderProducts();
             
-            // Update active button style
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.category === category) {
                     btn.classList.add('active');
@@ -615,6 +759,12 @@
                     btn.classList.remove('active');
                 }
             });
+        }
+
+        // Search handler
+        function handleSearch() {
+            currentSearch = searchInput.value;
+            renderProducts();
         }
 
         // Toggle cart sidebar
@@ -632,6 +782,13 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // Close modal when clicking outside
+        document.getElementById('productModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('productModal')) {
+                closeModal();
+            }
+        });
+
         // Close cart when clicking outside
         document.addEventListener('click', (e) => {
             const sidebar = document.getElementById('cartSidebar');
@@ -643,14 +800,16 @@
             }
         });
 
-        // Initialize
-        renderProducts();
-        updateCartUI();
+        // Event listeners
+        searchInput.addEventListener('input', handleSearch);
         
-        // Filter button event listeners
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => setFilter(btn.dataset.category));
         });
+
+        // Initialize
+        renderProducts();
+        updateCartUI();
     </script>
 </body>
 </html>
