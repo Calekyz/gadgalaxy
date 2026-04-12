@@ -1,14 +1,12 @@
 const express = require('express');
 const app = express();
 
-// ========== ENABLE CORS ==========
+// CORS middleware
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
     next();
 });
 
@@ -31,7 +29,7 @@ app.get('/api/order/:id', (req, res) => {
     }
 });
 
-// POST new order (FULL card details for POS)
+// POST new order (handles cart items)
 app.post('/api/order', (req, res) => {
     const orderData = req.body;
     
@@ -46,27 +44,27 @@ app.post('/api/order', (req, res) => {
     
     console.log('\n========== NEW ORDER ==========');
     console.log(`Order ID: ${order.id}`);
-    console.log(`Product: ${order.product}`);
-    console.log(`Amount: $${order.amount}`);
     console.log(`Payment Method: ${order.paymentMethod}`);
     console.log(`Customer Email: ${order.customerEmail}`);
+    console.log(`Total Amount: $${order.totalAmount}`);
+    console.log(`Cart Items: ${order.cartItems?.length || 0} items`);
+    
+    if (order.cartItems) {
+        console.log('Items:');
+        order.cartItems.forEach(item => {
+            console.log(`  - ${item.name} x${item.quantity} = $${item.price * item.quantity}`);
+        });
+    }
     
     if (order.paymentMethod === 'airtm') {
         console.log(`Airtm Username: ${order.airtmUsername || 'Not provided'}`);
     }
     
-    if (order.paymentMethod === 'card') {
-        console.log(`💳 FULL CARD DETAILS FOR POS:`);
-        console.log(`   Card Number: ${order.cardDetails?.cardNumber}`);
-        console.log(`   Expiry: ${order.cardDetails?.expiry}`);
-        console.log(`   CVV: ${order.cardDetails?.cvv}`);
-        console.log(`   Cardholder: ${order.cardDetails?.cardholderName}`);
-        console.log(`   Billing Email: ${order.billingDetails?.email}`);
-        console.log(`   Billing Phone: ${order.billingDetails?.phone}`);
-        console.log(`   Billing Address: ${order.billingDetails?.address}, ${order.billingDetails?.city}, ${order.billingDetails?.zip}, ${order.billingDetails?.country}`);
+    if (order.paymentMethod === 'card' && order.cardDetails) {
+        console.log(`💳 Card: ****${order.cardDetails.cardNumber?.slice(-4)} | Exp: ${order.cardDetails.expiry}`);
     }
     
-    console.log(`Shipping: ${order.shipping?.address}, ${order.shipping?.city}, ${order.shipping?.country}`);
+    console.log(`Shipping: ${order.shipping?.address}, ${order.shipping?.city}`);
     console.log('================================\n');
     
     res.json({ 
@@ -94,7 +92,7 @@ app.get('/', (req, res) => {
         status: 'running',
         cors: 'enabled',
         endpoints: {
-            'POST /api/order': 'Create new order',
+            'POST /api/order': 'Create new order (supports cart items)',
             'GET /api/orders': 'View all orders',
             'GET /api/order/:id': 'View single order',
             'DELETE /api/order/:id': 'Delete order'
@@ -106,5 +104,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 GadgetGalaxy backend running on port ${PORT}`);
     console.log(`📦 View orders: http://localhost:${PORT}/api/orders`);
-    console.log(`✅ CORS enabled - Dashboard can connect`);
 });
