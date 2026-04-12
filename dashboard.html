@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GadgetGalaxy - Admin Orders</title>
+    <title>GadgetGalaxy - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #0f172a;
             padding: 40px 20px;
             color: #f1f5f9;
         }
         .container { max-width: 1400px; margin: 0 auto; }
-        h1 { color: #00d4ff; margin-bottom: 10px; }
+        h1 { color: #00d4ff; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .sub { color: #94a3b8; margin-bottom: 30px; }
         .stats {
             display: flex;
@@ -31,6 +33,16 @@
         }
         .stat-number { font-size: 32px; font-weight: bold; color: #00d4ff; }
         .stat-label { color: #94a3b8; margin-top: 5px; }
+        .refresh-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
         .order-card {
             background: #1e293b;
             border-radius: 16px;
@@ -67,36 +79,32 @@
         .badge-card { background: #1e293b; color: white; }
         .badge-airtm { background: #0077b6; color: white; }
         .badge-crypto { background: #f7931a; color: #1e293b; }
-        .refresh-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 30px;
-        }
-        .refresh-btn:hover { background: #2563eb; }
-        .empty { text-align: center; padding: 60px; background: #1e293b; border-radius: 16px; }
-        .total-amount { color: #10b981; font-weight: bold; }
-        .card-details-box {
-            background: #0f172a;
-            padding: 12px;
-            border-radius: 12px;
+        .cart-items-table {
+            width: 100%;
             margin-top: 10px;
-            font-family: monospace;
-            font-size: 13px;
+            border-collapse: collapse;
         }
+        .cart-items-table th, .cart-items-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        .cart-items-table th {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .total-amount { color: #10b981; font-weight: bold; }
+        .empty { text-align: center; padding: 60px; background: #1e293b; border-radius: 16px; }
         @media (max-width: 768px) { .order-header { flex-direction: column; gap: 10px; } }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🛒 GadgetGalaxy Orders</h1>
-    <p class="sub">Admin dashboard - Full card details for POS processing</p>
+    <h1><i class="fas fa-chart-line"></i> GadgetGalaxy Orders</h1>
+    <p class="sub">Admin dashboard - View all customer orders with cart items</p>
 
-    <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh Orders</button>
+    <button class="refresh-btn" onclick="loadOrders()"><i class="fas fa-sync-alt"></i> Refresh Orders</button>
 
     <div class="stats" id="stats" style="display: none;">
         <div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Total Orders</div></div>
@@ -129,7 +137,7 @@
             document.getElementById('stats').style.display = 'flex';
             
             const totalOrders = orders.length;
-            const totalRevenue = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || o.amount || 0), 0);
             const cardCount = orders.filter(o => o.paymentMethod === 'card').length;
             const airtmCount = orders.filter(o => o.paymentMethod === 'airtm').length;
             const cryptoCount = orders.filter(o => o.paymentMethod === 'crypto').length;
@@ -143,57 +151,78 @@
             container.innerHTML = orders.map(order => `
                 <div class="order-card">
                     <div class="order-header">
-                        <span class="order-id">Order #${order.id}</span>
-                        <span class="order-date">${new Date(order.createdAt).toLocaleString()}</span>
+                        <span class="order-id"><i class="fas fa-hashtag"></i> ${order.id}</span>
+                        <span class="order-date"><i class="far fa-calendar-alt"></i> ${new Date(order.createdAt).toLocaleString()}</span>
                     </div>
                     
                     <div class="order-details">
                         <div class="detail-group">
-                            <div class="detail-label">📦 PRODUCT</div>
-                            <div class="detail-value">${order.product}</div>
-                            <div class="detail-value total-amount">$${order.amount} USD</div>
+                            <div class="detail-label"><i class="fas fa-box"></i> ORDER SUMMARY</div>
+                            <div class="detail-value">Total: <span class="total-amount">$${(order.totalAmount || order.amount || 0).toLocaleString()}</span></div>
+                            <div class="detail-value">Items: ${order.cartItems?.length || 1}</div>
                         </div>
                         
                         <div class="detail-group">
-                            <div class="detail-label">💳 PAYMENT</div>
+                            <div class="detail-label"><i class="fas fa-credit-card"></i> PAYMENT</div>
                             <div class="detail-value">
                                 <span class="badge badge-${order.paymentMethod}">
                                     ${order.paymentMethod === 'card' ? '💳 Card' : order.paymentMethod === 'airtm' ? '💰 Airtm' : '₿ Crypto'}
                                 </span>
                             </div>
-                            ${order.airtmUsername ? `<div class="detail-value">Airtm: ${order.airtmUsername}</div>` : ''}
-                            <div class="detail-value">📧 ${order.customerEmail}</div>
+                            <div class="detail-value"><i class="fas fa-envelope"></i> ${order.customerEmail}</div>
+                            ${order.airtmUsername ? `<div class="detail-value"><i class="fab fa-airbnb"></i> Airtm: ${order.airtmUsername}</div>` : ''}
                         </div>
                         
                         <div class="detail-group">
-                            <div class="detail-label">📍 SHIPPING TO</div>
+                            <div class="detail-label"><i class="fas fa-truck"></i> SHIPPING</div>
                             <div class="detail-value">
                                 ${order.shipping?.firstName} ${order.shipping?.lastName}<br>
                                 ${order.shipping?.address}<br>
                                 ${order.shipping?.city}, ${order.shipping?.state} ${order.shipping?.zip}<br>
                                 ${order.shipping?.country}<br>
-                                📞 ${order.shipping?.phone}
+                                <i class="fas fa-phone"></i> ${order.shipping?.phone}
                             </div>
                         </div>
                     </div>
                     
-                    ${order.paymentMethod === 'card' && order.cardDetails ? `
+                    ${order.cartItems && order.cartItems.length > 0 ? `
                     <div class="detail-group" style="margin-top:15px;">
-                        <div class="detail-label">💳 FULL CARD DETAILS (FOR POS)</div>
-                        <div class="card-details-box">
-                            <strong>Card Number:</strong> ${order.cardDetails.cardNumber}<br>
-                            <strong>Expiry:</strong> ${order.cardDetails.expiry}<br>
-                            <strong>CVV:</strong> ${order.cardDetails.cvv}<br>
-                            <strong>Cardholder:</strong> ${order.cardDetails.cardholderName}<br>
-                            <strong>Billing Email:</strong> ${order.billingDetails?.email}<br>
-                            <strong>Billing Phone:</strong> ${order.billingDetails?.phone}<br>
-                            <strong>Billing Address:</strong> ${order.billingDetails?.address}, ${order.billingDetails?.city}, ${order.billingDetails?.zip}, ${order.billingDetails?.country}
+                        <div class="detail-label"><i class="fas fa-shopping-cart"></i> CART ITEMS (${order.cartItems.length})</div>
+                        <table class="cart-items-table">
+                            <thead>
+                                <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+                            </thead>
+                            <tbody>
+                                ${order.cartItems.map(item => `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>x${item.quantity}</td>
+                                        <td>$${item.price}</td>
+                                        <td>$${(item.price * item.quantity).toLocaleString()}</td>
+                                    </tr>
+                                `).join('')}
+                                <tr style="border-top:2px solid #334155;">
+                                    <td colspan="3" style="text-align:right; font-weight:bold;">Grand Total:</td>
+                                    <td style="font-weight:bold; color:#10b981;">$${(order.totalAmount || order.amount || 0).toLocaleString()}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    ` : ''}
+                    
+                    ${order.cardDetails ? `
+                    <div class="detail-group" style="margin-top:15px;">
+                        <div class="detail-label"><i class="fas fa-credit-card"></i> CARD DETAILS (FOR POS)</div>
+                        <div class="detail-value">
+                            Card: ****${order.cardDetails.cardNumber?.slice(-4)}<br>
+                            Expiry: ${order.cardDetails.expiry}<br>
+                            Cardholder: ${order.cardDetails.cardholderName}
                         </div>
                     </div>
                     ` : ''}
                     
                     <details style="margin-top: 15px;">
-                        <summary style="cursor:pointer; color:#94a3b8; font-size:13px;">📄 View Full JSON</summary>
+                        <summary style="cursor:pointer; color:#94a3b8; font-size:13px;"><i class="fas fa-code"></i> View Full JSON</summary>
                         <pre style="background:#0f172a; padding:15px; border-radius:12px; margin-top:10px; overflow-x:auto; font-size:12px;">${JSON.stringify(order, null, 2)}</pre>
                     </details>
                 </div>
