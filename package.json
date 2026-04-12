@@ -10,12 +10,7 @@
     "express": "^4.18.2",
     "nodemailer": "^6.9.7"
   },
-  "keywords": [
-    "ecommerce",
-    "payments",
-    "gadgetgalaxy",
-    "email-notifications"
-  ],
+  "keywords": ["ecommerce", "payments", "gadgetgalaxy"],
   "author": "GadgetGalaxy",
   "license": "MIT"
 }
