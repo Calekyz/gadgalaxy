@@ -1,7 +1,15 @@
 {
   "name": "gadgetgalaxy-backend",
   "version": "1.0.0",
+  "description": "GadgetGalaxy payment backend",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
-  "dependencies": { "express": "^4.18.2" }
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "keywords": ["ecommerce", "payments", "gadgetgalaxy"],
+  "author": "GadgetGalaxy",
+  "license": "MIT"
 }
