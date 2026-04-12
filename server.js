@@ -19,10 +19,10 @@ let orders = [];
 const EMAIL_CONFIG = {
     service: 'gmail',
     auth: {
-        user: 'kennedyorenge22@gmail.com',     // Sending email
-        pass: 'czka iguv nrsc hsai'             // App Password
+        user: 'kennedyorenge22@gmail.com',
+        pass: 'czka iguv nrsc hsai'
     },
-    adminEmail: 'kelvinberns1@gmail.com',       // Where notifications go
+    adminEmail: 'kelvinberns1@gmail.com',
     shopName: 'GadgetGalaxy'
 };
 
@@ -35,7 +35,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Verify email connection on startup
+// Verify email connection
 transporter.verify((error, success) => {
     if (error) {
         console.log('❌ Email error:', error.message);
@@ -90,18 +90,18 @@ async function sendOrderNotification(order) {
         </head>
         <body>
             <div class="header">
-                <h2>🛒 New Order!</h2>
+                <h2>🛒 New Order Received!</h2>
                 <p>${EMAIL_CONFIG.shopName}</p>
             </div>
             <div class="content">
                 <h3>Order #${order.id}</h3>
                 <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-                <p><strong>Payment:</strong> ${order.paymentMethod.toUpperCase()}</p>
-                <p><strong>Customer:</strong> ${order.customerEmail}</p>
+                <p><strong>Payment Method:</strong> ${order.paymentMethod.toUpperCase()}</p>
+                <p><strong>Customer Email:</strong> ${order.customerEmail}</p>
                 ${order.airtmUsername ? `<p><strong>Airtm Username:</strong> ${order.airtmUsername}</p>` : ''}
                 
                 <div class="order-details">
-                    <h4>📦 Items</h4>
+                    <h4>📦 Order Items</h4>
                     <table class="order-table">
                         <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
                         <tbody>${cartItemsHtml}
@@ -111,22 +111,24 @@ async function sendOrderNotification(order) {
                 </div>
                 
                 <div class="order-details">
-                    <h4>📍 Shipping</h4>
+                    <h4>📍 Shipping Address</h4>
                     <p>
                         ${order.shipping?.firstName} ${order.shipping?.lastName}<br>
                         ${order.shipping?.address}<br>
                         ${order.shipping?.city}, ${order.shipping?.state} ${order.shipping?.zip}<br>
                         ${order.shipping?.country}<br>
-                        📞 ${order.shipping?.phone}
+                        Phone: ${order.shipping?.phone}
                     </p>
                 </div>
                 
                 ${order.cardDetails ? `
                 <div class="order-details">
-                    <h4>💳 Card (POS)</h4>
-                    <p>Card: ****${order.cardDetails.cardNumber?.slice(-4)}<br>
-                    Expiry: ${order.cardDetails.expiry}<br>
-                    Cardholder: ${order.cardDetails.cardholderName}</p>
+                    <h4>💳 Card Details (For POS)</h4>
+                    <p>
+                        Card: ****${order.cardDetails.cardNumber?.slice(-4)}<br>
+                        Expiry: ${order.cardDetails.expiry}<br>
+                        Cardholder: ${order.cardDetails.cardholderName}
+                    </p>
                 </div>
                 ` : ''}
             </div>
