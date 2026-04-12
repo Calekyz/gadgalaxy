@@ -1,15 +1,27 @@
 const express = require('express');
 const app = express();
+
+// ========== ENABLE CORS (Fixes dashboard error) ==========
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 app.use(express.json());
 
 let orders = [];
 
-// ========== GET all orders ==========
+// GET all orders
 app.get('/api/orders', (req, res) => {
     res.json(orders);
 });
 
-// ========== GET single order by ID ==========
+// GET single order by ID
 app.get('/api/order/:id', (req, res) => {
     const order = orders.find(o => o.id === req.params.id);
     if (order) {
@@ -19,7 +31,7 @@ app.get('/api/order/:id', (req, res) => {
     }
 });
 
-// ========== POST new order (supports ALL payment methods) ==========
+// POST new order
 app.post('/api/order', (req, res) => {
     const orderData = req.body;
     
@@ -32,7 +44,6 @@ app.post('/api/order', (req, res) => {
     
     orders.push(order);
     
-    // Log based on payment method
     console.log('\n========== NEW ORDER ==========');
     console.log(`Order ID: ${order.id}`);
     console.log(`Product: ${order.product}`);
@@ -49,10 +60,6 @@ app.post('/api/order', (req, res) => {
         console.log(`Cardholder: ${order.billing?.cardholderName || 'N/A'}`);
     }
     
-    if (order.paymentMethod === 'crypto') {
-        console.log(`Crypto Type: USDT (TRC20)`);
-    }
-    
     console.log(`Shipping: ${order.shipping?.address}, ${order.shipping?.city}, ${order.shipping?.country}`);
     console.log('================================\n');
     
@@ -63,7 +70,7 @@ app.post('/api/order', (req, res) => {
     });
 });
 
-// ========== DELETE order (for testing) ==========
+// DELETE order
 app.delete('/api/order/:id', (req, res) => {
     const index = orders.findIndex(o => o.id === req.params.id);
     if (index !== -1) {
@@ -74,16 +81,17 @@ app.delete('/api/order/:id', (req, res) => {
     }
 });
 
-// ========== Root route ==========
+// Root route
 app.get('/', (req, res) => {
     res.json({
         name: 'GadgetGalaxy API',
         status: 'running',
+        cors: 'enabled',
         endpoints: {
             'POST /api/order': 'Create new order',
             'GET /api/orders': 'View all orders',
             'GET /api/order/:id': 'View single order',
-            'DELETE /api/order/:id': 'Delete order (testing)'
+            'DELETE /api/order/:id': 'Delete order'
         }
     });
 });
@@ -92,4 +100,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 GadgetGalaxy backend running on port ${PORT}`);
     console.log(`📦 View orders: http://localhost:${PORT}/api/orders`);
+    console.log(`✅ CORS enabled - Dashboard can now connect`);
 });
