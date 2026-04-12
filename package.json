@@ -1,14 +1,14 @@
 {
   "name": "gadgetgalaxy-backend",
   "version": "1.0.0",
-  "description": "GadgetGalaxy payment backend with email notifications",
+  "description": "GadgetGalaxy payment backend with Resend email notifications",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "nodemailer": "^6.9.7"
+    "resend": "^4.0.0"
   },
   "keywords": ["ecommerce", "payments", "gadgetgalaxy"],
   "author": "GadgetGalaxy",
