@@ -4,12 +4,7 @@ app.use(express.json());
 
 let orders = [];
 
-// GET all orders (view orders)
-app.get('/api/orders', (req, res) => {
-    res.json(orders);
-});
-
-// POST new order
+// IMPORTANT: This is the endpoint your HTML is calling
 app.post('/api/order', (req, res) => {
     const order = { 
         id: Date.now().toString(), 
@@ -21,10 +16,15 @@ app.post('/api/order', (req, res) => {
     res.json({ success: true, orderId: order.id });
 });
 
+// View all orders
+app.get('/api/orders', (req, res) => {
+    res.json(orders);
+});
+
 // Root route
 app.get('/', (req, res) => {
-    res.send('GadgetGalaxy API is running');
+    res.send('GadgetGalaxy API is running. Use POST /api/order to create orders.');
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
