@@ -21,7 +21,7 @@ const EMAIL_CONFIG = {
     service: 'gmail',
     auth: {
         user: 'alihassinhassin22@gmail.com',     // YOUR sending email
-        pass: 'your_app_password_here'            // ⚠️ REPLACE with App Password!
+        pass: '@gadgalaxy223'            // ⚠️ REPLACE with App Password!
     },
     // Where to send order notifications (TO)
     adminEmail: 'caleborenge8@gmail.com',         // Notifications go here
@@ -163,7 +163,7 @@ async function sendOrderNotification(order) {
     
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`📧 Email notification sent to ${EMAIL_CONFIG.adminEmail} for order #${order.id}`);
+        console.log(`📧 Email notification sent to ${kelvinberns1@gmail.com} for order #${order.id}`);
     } catch (error) {
         console.log(`❌ Failed to send email:`, error.message);
     }
@@ -233,7 +233,7 @@ app.get('/', (req, res) => {
     res.json({
         name: 'GadgetGalaxy API',
         status: 'running',
-        emailNotifications: `Sending to ${EMAIL_CONFIG.adminEmail}`,
+        emailNotifications: `Sending to ${kelvinberns1@gmail.com}`,
         endpoints: {
             'POST /api/order': 'Create new order (sends email notification)',
             'GET /api/orders': 'View all orders',
@@ -246,6 +246,6 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 GadgetGalaxy backend running on port ${PORT}`);
-    console.log(`📧 Email notifications will be sent to: ${EMAIL_CONFIG.adminEmail}`);
+    console.log(`📧 Email notifications will be sent to: ${kelvinberns1@gmail.com}`);
     console.log(`📧 From email: ${EMAIL_CONFIG.auth.user}`);
 });
