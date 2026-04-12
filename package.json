@@ -1,15 +1,21 @@
 {
   "name": "gadgetgalaxy-backend",
   "version": "1.0.0",
-  "description": "GadgetGalaxy payment backend with cart support",
+  "description": "GadgetGalaxy payment backend with email notifications",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "nodemailer": "^6.9.7"
   },
-  "keywords": ["ecommerce", "payments", "gadgetgalaxy"],
+  "keywords": [
+    "ecommerce",
+    "payments",
+    "gadgetgalaxy",
+    "email-notifications"
+  ],
   "author": "GadgetGalaxy",
   "license": "MIT"
 }
