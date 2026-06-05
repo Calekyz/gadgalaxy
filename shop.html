@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>GadgetGalaxy | Premium Electronics Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -104,6 +104,26 @@
 
         .nav-links a:hover {
             color: #00d4ff;
+        }
+
+        /* Currency Selector */
+        .currency-selector {
+            background: #f1f5f9;
+            border-radius: 40px;
+            padding: 0.3rem 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        .currency-selector select {
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            outline: none;
+            color: #0f172a;
         }
 
         .cart-icon {
@@ -525,6 +545,16 @@
                 <a href="#">Home</a>
                 <a href="#products">Shop</a>
                 <a href="#">Deals</a>
+                <!-- Currency Switcher -->
+                <div class="currency-selector">
+                    <i class="fas fa-dollar-sign"></i>
+                    <select id="currencySelect">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="KES">KES (KSh)</option>
+                    </select>
+                </div>
                 <div class="cart-icon" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="cartCount">0</span>
@@ -576,12 +606,12 @@
                 <span>Total:</span>
                 <span id="cartTotal">$0</span>
             </div>
-            <a href="index.html" class="checkout-btn">Proceed to Checkout →</a>
+            <a href="checkout.html" class="checkout-btn">Proceed to Checkout →</a>
         </div>
     </div>
 
     <script>
-        // PRODUCT DATABASE WITH REAL IMAGES
+        // PRODUCT DATABASE (prices in USD)
         const products = [
             { id: 1, name: "PlayStation 5", price: 550, category: "gaming", image: "https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400", specs: "825GB SSD • 4K Gaming • Ray Tracing • DualSense Controller" },
             { id: 2, name: "PlayStation 4 Pro", price: 350, category: "gaming", image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400", specs: "1TB HDD • 4K Upscaling • 500+ Games • DualShock 4" },
@@ -597,10 +627,19 @@
             { id: 12, name: "Curved Gaming Monitor 34\"", price: 599, category: "monitors", image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400", specs: "3440x1440 • 165Hz • 1ms Response • G-Sync Compatible" }
         ];
 
-        // Cart state
+        // Exchange rates (relative to USD)
+        const exchangeRates = {
+            USD: 1,
+            EUR: 0.92,
+            GBP: 0.79,
+            KES: 129.50
+        };
+
+        // Cart state (stores USD prices)
         let cart = JSON.parse(localStorage.getItem('gadgetgalaxy_cart')) || [];
         let currentFilter = 'all';
         let currentSearch = '';
+        let currentCurrency = localStorage.getItem('preferredCurrency') || 'USD';
 
         // DOM Elements
         const productsGrid = document.getElementById('productsGrid');
@@ -608,6 +647,23 @@
         const cartCountEl = document.getElementById('cartCount');
         const cartTotalEl = document.getElementById('cartTotal');
         const searchInput = document.getElementById('searchInput');
+        const currencySelect = document.getElementById('currencySelect');
+
+        // Helper: convert USD to selected currency
+        function convertPrice(usdPrice) {
+            return usdPrice * exchangeRates[currentCurrency];
+        }
+
+        // Format price with currency symbol
+        function formatPrice(usdPrice) {
+            const converted = convertPrice(usdPrice);
+            const symbols = { USD: '$', EUR: '€', GBP: '£', KES: 'KSh ' };
+            const symbol = symbols[currentCurrency];
+            if (currentCurrency === 'KES') {
+                return `${symbol}${converted.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            }
+            return `${symbol}${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
 
         // Save cart to localStorage
         function saveCart() {
@@ -650,38 +706,41 @@
             }
         }
 
-        // Update cart UI
+        // Update cart UI (with currency conversion)
         function updateCartUI() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totalUSD = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
             cartCountEl.textContent = totalItems;
-            cartTotalEl.textContent = `$${totalPrice.toLocaleString()}`;
+            cartTotalEl.innerHTML = formatPrice(totalUSD);
             
             if (cartItemsEl) {
                 if (cart.length === 0) {
                     cartItemsEl.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8;">Your cart is empty</div>';
                 } else {
-                    cartItemsEl.innerHTML = cart.map(item => `
+                    cartItemsEl.innerHTML = cart.map(item => {
+                        const itemTotalUSD = item.price * item.quantity;
+                        return `
                         <div class="cart-item">
                             <img class="cart-item-image" src="${item.image}" alt="${item.name}">
                             <div class="cart-item-details">
                                 <div class="cart-item-title">${item.name}</div>
-                                <div class="cart-item-price">$${item.price}</div>
+                                <div class="cart-item-price">${formatPrice(item.price)} each</div>
                                 <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
                                     <button onclick="updateQuantity(${item.id}, -1)" style="background:#f1f5f9; border:none; width:28px; border-radius:8px; cursor:pointer;">-</button>
                                     <span>${item.quantity}</span>
                                     <button onclick="updateQuantity(${item.id}, 1)" style="background:#f1f5f9; border:none; width:28px; border-radius:8px; cursor:pointer;">+</button>
                                 </div>
+                                <div style="font-size:0.8rem; margin-top:0.3rem;">Total: ${formatPrice(itemTotalUSD)}</div>
                             </div>
                             <button class="cart-item-remove" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
                         </div>
-                    `).join('');
+                    `}).join('');
                 }
             }
         }
 
-        // Open product details modal
+        // Open product details modal (with currency conversion)
         function openProductModal(productId) {
             const product = products.find(p => p.id === productId);
             const modal = document.getElementById('productModal');
@@ -691,7 +750,7 @@
                 <img class="modal-image" src="${product.image}" alt="${product.name}">
                 <div class="modal-details">
                     <h2>${product.name}</h2>
-                    <div class="modal-price">$${product.price} USD</div>
+                    <div class="modal-price">${formatPrice(product.price)}</div>
                     <div class="modal-specs">
                         <strong>📋 Specifications:</strong><br>
                         ${product.specs}
@@ -709,16 +768,14 @@
             document.getElementById('productModal').classList.remove('active');
         }
 
-        // Render products grid
+        // Render products grid (with currency conversion)
         function renderProducts() {
             let filtered = products;
             
-            // Apply category filter
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(p => p.category === currentFilter);
             }
             
-            // Apply search filter
             if (currentSearch) {
                 filtered = filtered.filter(p => 
                     p.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
@@ -737,7 +794,7 @@
                     <div class="product-info">
                         <div class="product-category">${product.category.toUpperCase()}</div>
                         <div class="product-title">${product.name}</div>
-                        <div class="product-price">$${product.price} <small>USD</small></div>
+                        <div class="product-price">${formatPrice(product.price)}</div>
                         <div style="font-size:0.8rem; color:#64748b; margin:0.5rem 0;">${product.specs.substring(0, 60)}...</div>
                         <button class="buy-btn" onclick="event.stopPropagation(); addToCart(${product.id})">
                             <i class="fas fa-shopping-cart"></i> Add to Cart
@@ -782,6 +839,28 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // Change currency
+        function changeCurrency() {
+            currentCurrency = currencySelect.value;
+            localStorage.setItem('preferredCurrency', currentCurrency);
+            renderProducts();
+            updateCartUI();
+            // Close any open modal to avoid stale content
+            closeModal();
+            showToast(`Currency changed to ${currentCurrency}`);
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', handleSearch);
+        currencySelect.addEventListener('change', changeCurrency);
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => setFilter(btn.dataset.category));
+        });
+
+        // Initialize currency selector with stored value
+        currencySelect.value = currentCurrency;
+
         // Close modal when clicking outside
         document.getElementById('productModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('productModal')) {
@@ -798,13 +877,6 @@
             if (sidebar.classList.contains('open') && !cartIcon && !sidebarContent) {
                 sidebar.classList.remove('open');
             }
-        });
-
-        // Event listeners
-        searchInput.addEventListener('input', handleSearch);
-        
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => setFilter(btn.dataset.category));
         });
 
         // Initialize
