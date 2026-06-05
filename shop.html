@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>GadgetGalaxy | Premium Electronics Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -13,10 +13,18 @@
             box-sizing: border-box;
         }
 
+        /* Prevent horizontal overflow on all screens */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             color: #0f172a;
+            line-height: 1.5;
         }
 
         /* Header & Navigation */
@@ -26,12 +34,13 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            width: 100%;
         }
 
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 1rem 2rem;
+            padding: 1rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -40,13 +49,14 @@
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
             background: linear-gradient(135deg, #00d4ff, #7c3aed);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             text-decoration: none;
+            white-space: nowrap;
         }
 
         .logo span {
@@ -58,6 +68,7 @@
         .search-container {
             flex: 1;
             max-width: 400px;
+            min-width: 180px;
         }
 
         .search-box {
@@ -87,12 +98,14 @@
             font-size: 0.9rem;
             outline: none;
             font-family: 'Inter', sans-serif;
+            width: 100%;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .nav-links a {
@@ -100,6 +113,7 @@
             color: #475569;
             font-weight: 500;
             transition: color 0.2s;
+            font-size: 0.95rem;
         }
 
         .nav-links a:hover {
@@ -124,12 +138,13 @@
             cursor: pointer;
             outline: none;
             color: #0f172a;
+            font-size: 0.9rem;
         }
 
         .cart-icon {
             position: relative;
             cursor: pointer;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: #0f172a;
         }
 
@@ -143,48 +158,53 @@
             font-weight: 600;
             padding: 2px 6px;
             border-radius: 20px;
+            min-width: 18px;
+            text-align: center;
         }
 
         /* Hero Section */
         .hero {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: white;
-            padding: 4rem 2rem;
+            padding: 3rem 1.5rem;
             text-align: center;
+            width: 100%;
         }
 
         .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: clamp(1.8rem, 7vw, 3rem);
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
         }
 
         .hero p {
-            font-size: 1.2rem;
-            color: #94a3b8;
+            font-size: clamp(0.95rem, 4vw, 1.2rem);
+            color: #cbd5e1;
             max-width: 600px;
             margin: 0 auto;
+            padding: 0 0.5rem;
         }
 
         /* Category Filters */
         .categories {
             max-width: 1400px;
-            margin: -2rem auto 2rem;
-            padding: 0 2rem;
+            margin: -1.8rem auto 2rem;
+            padding: 0 1rem;
         }
 
         .filter-bar {
             background: white;
-            padding: 1rem;
+            padding: 0.75rem 1rem;
             border-radius: 60px;
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
             flex-wrap: wrap;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
         .filter-btn {
-            padding: 0.6rem 1.5rem;
+            padding: 0.5rem 1.2rem;
             border: none;
             background: #f1f5f9;
             border-radius: 40px;
@@ -192,6 +212,8 @@
             cursor: pointer;
             transition: all 0.2s;
             font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
         .filter-btn.active {
@@ -207,11 +229,11 @@
         .products-section {
             max-width: 1400px;
             margin: 2rem auto;
-            padding: 0 2rem;
+            padding: 0 1rem;
         }
 
         .section-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
             margin-bottom: 1.5rem;
             display: flex;
@@ -226,56 +248,59 @@
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
+            gap: 1.8rem;
         }
 
         .product-card {
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             cursor: pointer;
+            width: 100%;
         }
 
         .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.12);
         }
 
         .product-image {
-            height: 220px;
             width: 100%;
+            height: 220px;
             object-fit: cover;
+            display: block;
         }
 
         .product-info {
-            padding: 1.5rem;
+            padding: 1.2rem;
         }
 
         .product-category {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #00d4ff;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .product-title {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 700;
             margin: 0.5rem 0;
+            line-height: 1.3;
         }
 
         .product-price {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #0f172a;
             margin: 0.5rem 0;
         }
 
         .product-price small {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 400;
             color: #64748b;
         }
@@ -290,8 +315,8 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 1rem;
             font-family: 'Inter', sans-serif;
+            margin-top: 0.8rem;
         }
 
         .buy-btn:hover {
@@ -307,10 +332,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 1002;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
 
         .modal.active {
@@ -319,18 +345,18 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
+            border-radius: 28px;
             max-width: 900px;
-            width: 90%;
-            max-height: 85vh;
+            width: 100%;
+            max-height: 90vh;
             overflow-y: auto;
             position: relative;
         }
 
         .modal-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 16px;
+            right: 16px;
             background: white;
             border: none;
             font-size: 1.5rem;
@@ -338,40 +364,42 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
         }
 
         .modal-body {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            padding: 2rem;
+            gap: 1.2rem;
+            padding: 1.8rem;
         }
 
         .modal-image {
             width: 100%;
-            height: 300px;
+            max-height: 280px;
             object-fit: cover;
-            border-radius: 16px;
+            border-radius: 20px;
         }
 
         .modal-details h2 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             margin-bottom: 0.5rem;
         }
 
         .modal-price {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: #00d4ff;
             font-weight: 800;
-            margin: 1rem 0;
+            margin: 0.8rem 0;
         }
 
         .modal-specs {
             background: #f1f5f9;
             padding: 1rem;
-            border-radius: 12px;
-            margin: 1rem 0;
+            border-radius: 16px;
+            margin: 0.8rem 0;
+            line-height: 1.5;
         }
 
         /* Cart Sidebar */
@@ -383,9 +411,9 @@
             max-width: 450px;
             height: 100%;
             background: white;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
             z-index: 1000;
-            transition: right 0.3s ease;
+            transition: right 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             display: flex;
             flex-direction: column;
         }
@@ -395,7 +423,7 @@
         }
 
         .cart-header {
-            padding: 1.5rem;
+            padding: 1.2rem 1.5rem;
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
@@ -409,8 +437,9 @@
         .close-cart {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             cursor: pointer;
+            line-height: 1;
         }
 
         .cart-items {
@@ -424,6 +453,7 @@
             gap: 1rem;
             padding: 1rem;
             border-bottom: 1px solid #e2e8f0;
+            align-items: center;
         }
 
         .cart-item-image {
@@ -431,6 +461,7 @@
             height: 60px;
             object-fit: cover;
             border-radius: 12px;
+            flex-shrink: 0;
         }
 
         .cart-item-details {
@@ -439,11 +470,13 @@
 
         .cart-item-title {
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .cart-item-price {
             color: #00d4ff;
             font-weight: 600;
+            font-size: 0.85rem;
         }
 
         .cart-item-remove {
@@ -451,17 +484,18 @@
             border: none;
             color: #ef4444;
             cursor: pointer;
+            font-size: 1rem;
         }
 
         .cart-footer {
-            padding: 1.5rem;
+            padding: 1.2rem 1.5rem;
             border-top: 1px solid #e2e8f0;
         }
 
         .cart-total {
             display: flex;
             justify-content: space-between;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1.2rem;
             margin-bottom: 1rem;
         }
@@ -489,42 +523,133 @@
         /* Toast Notification */
         .toast {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #10b981;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
             z-index: 1001;
-            animation: slideIn 0.3s ease;
+            animation: slideUp 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            white-space: nowrap;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(30px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
 
         .no-results {
             text-align: center;
             padding: 3rem;
             color: #64748b;
+            font-size: 1.1rem;
         }
 
-        /* Responsive */
+        /* ========== RESPONSIVE FIXES ========== */
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+                gap: 0.8rem;
             }
             .search-container {
                 max-width: 100%;
                 width: 100%;
             }
+            .nav-links {
+                justify-content: space-between;
+                gap: 0.8rem;
+                flex-wrap: wrap;
+            }
             .filter-bar {
-                border-radius: 20px;
-                justify-content: center;
+                border-radius: 30px;
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+            .filter-btn {
+                padding: 0.4rem 1rem;
+                font-size: 0.75rem;
+                white-space: nowrap;
             }
             .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.2rem;
+            }
+            .hero {
+                padding: 2rem 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            .product-card {
+                max-width: 100%;
+            }
+            .product-image {
+                height: 200px;
+            }
+            .product-info {
+                padding: 1rem;
+            }
+            .product-title {
+                font-size: 1rem;
+            }
+            .product-price {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+            .cart-overlay {
+                max-width: 100%;
+            }
+            .modal-body {
+                padding: 1.2rem;
+            }
+            .modal-details h2 {
+                font-size: 1.3rem;
+            }
+            .modal-price {
+                font-size: 1.5rem;
+            }
+            .modal-image {
+                max-height: 220px;
+            }
+            .currency-selector select {
+                font-size: 0.8rem;
+            }
+            .nav-links a {
+                font-size: 0.85rem;
+            }
+            .toast {
+                white-space: normal;
+                text-align: center;
+                font-size: 0.85rem;
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .filter-bar {
+                border-radius: 24px;
+                gap: 0.4rem;
+            }
+            .filter-btn {
+                padding: 0.35rem 0.9rem;
+                font-size: 0.7rem;
+            }
+            .cart-item {
+                flex-wrap: wrap;
+            }
+            .cart-item-image {
+                width: 50px;
+                height: 50px;
             }
         }
     </style>
@@ -545,7 +670,6 @@
                 <a href="#">Home</a>
                 <a href="#products">Shop</a>
                 <a href="#">Deals</a>
-                <!-- Currency Switcher -->
                 <div class="currency-selector">
                     <i class="fas fa-dollar-sign"></i>
                     <select id="currencySelect">
@@ -627,21 +751,12 @@
             { id: 12, name: "Curved Gaming Monitor 34\"", price: 599, category: "monitors", image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400", specs: "3440x1440 • 165Hz • 1ms Response • G-Sync Compatible" }
         ];
 
-        // Exchange rates (relative to USD)
-        const exchangeRates = {
-            USD: 1,
-            EUR: 0.92,
-            GBP: 0.79,
-            KES: 129.50
-        };
-
-        // Cart state (stores USD prices)
+        const exchangeRates = { USD: 1, EUR: 0.92, GBP: 0.79, KES: 129.50 };
         let cart = JSON.parse(localStorage.getItem('gadgetgalaxy_cart')) || [];
         let currentFilter = 'all';
         let currentSearch = '';
         let currentCurrency = localStorage.getItem('preferredCurrency') || 'USD';
 
-        // DOM Elements
         const productsGrid = document.getElementById('productsGrid');
         const cartItemsEl = document.getElementById('cartItems');
         const cartCountEl = document.getElementById('cartCount');
@@ -649,12 +764,10 @@
         const searchInput = document.getElementById('searchInput');
         const currencySelect = document.getElementById('currencySelect');
 
-        // Helper: convert USD to selected currency
         function convertPrice(usdPrice) {
             return usdPrice * exchangeRates[currentCurrency];
         }
 
-        // Format price with currency symbol
         function formatPrice(usdPrice) {
             const converted = convertPrice(usdPrice);
             const symbols = { USD: '$', EUR: '€', GBP: '£', KES: 'KSh ' };
@@ -665,64 +778,49 @@
             return `${symbol}${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
-        // Save cart to localStorage
         function saveCart() {
             localStorage.setItem('gadgetgalaxy_cart', JSON.stringify(cart));
             updateCartUI();
         }
 
-        // Add to cart
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             const existingItem = cart.find(item => item.id === productId);
-            
-            if (existingItem) {
-                existingItem.quantity++;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-            
+            if (existingItem) existingItem.quantity++;
+            else cart.push({ ...product, quantity: 1 });
             saveCart();
             showToast(`${product.name} added to cart!`);
         }
 
-        // Remove from cart
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
             saveCart();
-            showToast('Item removed from cart');
+            showToast('Item removed');
         }
 
-        // Update quantity
         function updateQuantity(productId, change) {
             const item = cart.find(item => item.id === productId);
             if (item) {
                 item.quantity += change;
-                if (item.quantity <= 0) {
-                    removeFromCart(productId);
-                } else {
-                    saveCart();
-                }
+                if (item.quantity <= 0) removeFromCart(productId);
+                else saveCart();
             }
         }
 
-        // Update cart UI (with currency conversion)
         function updateCartUI() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             const totalUSD = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
             cartCountEl.textContent = totalItems;
             cartTotalEl.innerHTML = formatPrice(totalUSD);
-            
             if (cartItemsEl) {
                 if (cart.length === 0) {
-                    cartItemsEl.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8;">Your cart is empty</div>';
+                    cartItemsEl.innerHTML = '<div style="text-align:center; padding:2rem; color:#94a3b8;">✨ Your cart is empty</div>';
                 } else {
                     cartItemsEl.innerHTML = cart.map(item => {
                         const itemTotalUSD = item.price * item.quantity;
                         return `
                         <div class="cart-item">
-                            <img class="cart-item-image" src="${item.image}" alt="${item.name}">
+                            <img class="cart-item-image" src="${item.image}" alt="${item.name}" loading="lazy">
                             <div class="cart-item-details">
                                 <div class="cart-item-title">${item.name}</div>
                                 <div class="cart-item-price">${formatPrice(item.price)} each</div>
@@ -731,7 +829,7 @@
                                     <span>${item.quantity}</span>
                                     <button onclick="updateQuantity(${item.id}, 1)" style="background:#f1f5f9; border:none; width:28px; border-radius:8px; cursor:pointer;">+</button>
                                 </div>
-                                <div style="font-size:0.8rem; margin-top:0.3rem;">Total: ${formatPrice(itemTotalUSD)}</div>
+                                <div style="font-size:0.75rem; margin-top:0.3rem;">Total: ${formatPrice(itemTotalUSD)}</div>
                             </div>
                             <button class="cart-item-remove" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
                         </div>
@@ -740,146 +838,82 @@
             }
         }
 
-        // Open product details modal (with currency conversion)
         function openProductModal(productId) {
             const product = products.find(p => p.id === productId);
-            const modal = document.getElementById('productModal');
             const modalBody = document.getElementById('modalBody');
-            
             modalBody.innerHTML = `
-                <img class="modal-image" src="${product.image}" alt="${product.name}">
+                <img class="modal-image" src="${product.image}" alt="${product.name}" loading="lazy">
                 <div class="modal-details">
                     <h2>${product.name}</h2>
                     <div class="modal-price">${formatPrice(product.price)}</div>
-                    <div class="modal-specs">
-                        <strong>📋 Specifications:</strong><br>
-                        ${product.specs}
-                    </div>
-                    <button class="buy-btn" onclick="addToCart(${product.id}); closeModal();">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>
+                    <div class="modal-specs"><strong>📋 Specifications:</strong><br>${product.specs}</div>
+                    <button class="buy-btn" onclick="addToCart(${product.id}); closeModal();"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
                 </div>
             `;
-            
-            modal.classList.add('active');
+            document.getElementById('productModal').classList.add('active');
         }
 
-        function closeModal() {
-            document.getElementById('productModal').classList.remove('active');
-        }
+        function closeModal() { document.getElementById('productModal').classList.remove('active'); }
 
-        // Render products grid (with currency conversion)
         function renderProducts() {
-            let filtered = products;
-            
-            if (currentFilter !== 'all') {
-                filtered = filtered.filter(p => p.category === currentFilter);
-            }
-            
-            if (currentSearch) {
-                filtered = filtered.filter(p => 
-                    p.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                    p.category.toLowerCase().includes(currentSearch.toLowerCase())
-                );
-            }
-            
+            let filtered = products.filter(p => currentFilter === 'all' || p.category === currentFilter);
+            if (currentSearch) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearch.toLowerCase()) || p.category.includes(currentSearch.toLowerCase()));
             if (filtered.length === 0) {
-                productsGrid.innerHTML = `<div class="no-results">🔍 No products found matching "${currentSearch}"</div>`;
+                productsGrid.innerHTML = `<div class="no-results">🔍 No products found for "${currentSearch}"</div>`;
                 return;
             }
-            
             productsGrid.innerHTML = filtered.map(product => `
                 <div class="product-card" onclick="openProductModal(${product.id})">
-                    <img class="product-image" src="${product.image}" alt="${product.name}">
+                    <img class="product-image" src="${product.image}" alt="${product.name}" loading="lazy">
                     <div class="product-info">
                         <div class="product-category">${product.category.toUpperCase()}</div>
                         <div class="product-title">${product.name}</div>
                         <div class="product-price">${formatPrice(product.price)}</div>
-                        <div style="font-size:0.8rem; color:#64748b; margin:0.5rem 0;">${product.specs.substring(0, 60)}...</div>
-                        <button class="buy-btn" onclick="event.stopPropagation(); addToCart(${product.id})">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
+                        <div style="font-size:0.75rem; color:#64748b; margin:0.4rem 0;">${product.specs.substring(0, 55)}...</div>
+                        <button class="buy-btn" onclick="event.stopPropagation(); addToCart(${product.id})"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Set filter
         function setFilter(category) {
             currentFilter = category;
             renderProducts();
-            
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.dataset.category === category) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                btn.classList.toggle('active', btn.dataset.category === category);
             });
         }
 
-        // Search handler
-        function handleSearch() {
-            currentSearch = searchInput.value;
-            renderProducts();
-        }
-
-        // Toggle cart sidebar
-        function toggleCart() {
-            const sidebar = document.getElementById('cartSidebar');
-            sidebar.classList.toggle('open');
-        }
-
-        // Toast notification
+        function handleSearch() { currentSearch = searchInput.value; renderProducts(); }
+        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('open'); }
+        
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 2800);
         }
 
-        // Change currency
         function changeCurrency() {
             currentCurrency = currencySelect.value;
             localStorage.setItem('preferredCurrency', currentCurrency);
             renderProducts();
             updateCartUI();
-            // Close any open modal to avoid stale content
             closeModal();
-            showToast(`Currency changed to ${currentCurrency}`);
+            showToast(`Currency: ${currentCurrency}`);
         }
 
-        // Event listeners
         searchInput.addEventListener('input', handleSearch);
         currencySelect.addEventListener('change', changeCurrency);
-        
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => setFilter(btn.dataset.category));
-        });
-
-        // Initialize currency selector with stored value
-        currencySelect.value = currentCurrency;
-
-        // Close modal when clicking outside
-        document.getElementById('productModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('productModal')) {
-                closeModal();
-            }
-        });
-
-        // Close cart when clicking outside
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.category)));
+        document.getElementById('productModal').addEventListener('click', (e) => { if (e.target === document.getElementById('productModal')) closeModal(); });
         document.addEventListener('click', (e) => {
             const sidebar = document.getElementById('cartSidebar');
-            const cartIcon = e.target.closest('.cart-icon');
-            const sidebarContent = e.target.closest('.cart-overlay');
-            
-            if (sidebar.classList.contains('open') && !cartIcon && !sidebarContent) {
-                sidebar.classList.remove('open');
-            }
+            if (sidebar.classList.contains('open') && !e.target.closest('.cart-icon') && !e.target.closest('.cart-overlay')) sidebar.classList.remove('open');
         });
 
-        // Initialize
+        currencySelect.value = currentCurrency;
         renderProducts();
         updateCartUI();
     </script>
