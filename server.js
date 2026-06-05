@@ -1,199 +1,186 @@
 const express = require('express');
+const cors = require('cors');
 const { Resend } = require('resend');
+
 const app = express();
 
-// CORS middleware
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    if (req.method === 'OPTIONS') return res.sendStatus(200);
-    next();
-});
+// ====================== CONFIGURATION ======================
+const ADMIN_EMAIL = 'kelvinberns1@gmail.com';       // Change to your email
+const RESEND_API_KEY = 're_fmCDGVHD_J6Wb9uTMnPaGBQQpfsPYEzHV'; // Your Resend API key
+const FROM_EMAIL = 'onboarding@resend.dev';        // Resend default sender
 
-app.use(express.json());
+// Order expiration time (24 hours in milliseconds)
+const ORDER_TTL_MS = 24 * 60 * 60 * 1000;
 
+// In-memory order store: each order has { id, createdAt, ...rest }
 let orders = [];
 
-// ========== RESEND EMAIL CONFIGURATION ==========
-const resend = new Resend('re_fmCDGVHD_J6Wb9uTMnPaGBQQpfsPYEzHV');
+// ====================== MIDDLEWARE ======================
+app.use(cors());
+app.use(express.json());
 
-const ADMIN_EMAIL = 'kelvinberns1@gmail.com';
-const FROM_EMAIL = 'onboarding@resend.dev'; // Resend's default sender
+// Optional: log all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
-// Send order notification using Resend API
-async function sendOrderNotification(order) {
-    let cartItemsHtml = '';
-    let totalAmount = 0;
-    
-    if (order.cartItems && order.cartItems.length > 0) {
-        order.cartItems.forEach(item => {
-            const itemTotal = item.price * item.quantity;
-            totalAmount += itemTotal;
-            cartItemsHtml += `
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.name}</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${item.price.toFixed(2)}</td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${itemTotal.toFixed(2)}</td>
-                </tr>
-            `;
-        });
-    } else {
-        totalAmount = order.amount || order.totalAmount || 0;
-        cartItemsHtml = `
-            <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;">${order.product || 'Product'}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">1</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${totalAmount.toFixed(2)}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">$${totalAmount.toFixed(2)}</td>
-            </tr>
-        `;
-    }
-    
-    const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; }
-                .header { background: linear-gradient(135deg, #00d4ff, #7c3aed); padding: 20px; text-align: center; color: white; }
-                .content { padding: 20px; }
-                .order-details { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 15px 0; }
-                .order-table { width: 100%; border-collapse: collapse; }
-                .order-table th { background: #e2e8f0; padding: 8px; text-align: left; }
-                .total-row { font-weight: bold; background: #f1f5f9; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>🛒 New Order Received!</h2>
-                <p>GadgetGalaxy</p>
-            </div>
-            <div class="content">
-                <h3>Order #${order.id}</h3>
-                <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-                <p><strong>Payment Method:</strong> ${order.paymentMethod.toUpperCase()}</p>
-                <p><strong>Customer Email:</strong> ${order.customerEmail}</p>
-                ${order.airtmUsername ? `<p><strong>Airtm Username:</strong> ${order.airtmUsername}</p>` : ''}
-                
-                <div class="order-details">
-                    <h4>📦 Order Items</h4>
-                    <table class="order-table">
-                        <thead>
-                            <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
-                        </thead>
-                        <tbody>${cartItemsHtml}
-                        <tr class="total-row"><td colspan="3" style="text-align:right">TOTAL:</td><td><strong>$${totalAmount.toFixed(2)}</strong></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="order-details">
-                    <h4>📍 Shipping Address</h4>
-                    <p>
-                        ${order.shipping?.firstName} ${order.shipping?.lastName}<br>
-                        ${order.shipping?.address}<br>
-                        ${order.shipping?.city}, ${order.shipping?.state} ${order.shipping?.zip}<br>
-                        ${order.shipping?.country}<br>
-                        Phone: ${order.shipping?.phone}
-                    </p>
-                </div>
-                
-                ${order.cardDetails ? `
-                <div class="order-details">
-                    <h4>💳 Card Details (For POS)</h4>
-                    <p>
-                        Card: ****${order.cardDetails.cardNumber?.slice(-4)}<br>
-                        Expiry: ${order.cardDetails.expiry}<br>
-                        Cardholder: ${order.cardDetails.cardholderName}
-                    </p>
-                </div>
-                ` : ''}
-            </div>
-        </body>
-        </html>
-    `;
-    
-    try {
-        const { data, error } = await resend.emails.send({
-            from: FROM_EMAIL,
-            to: ADMIN_EMAIL,
-            subject: `🛒 New Order #${order.id} - $${totalAmount.toFixed(2)}`,
-            html: emailHtml
-        });
-        
-        if (error) {
-            console.log('❌ Email failed:', error);
-        } else {
-            console.log(`📧 Email sent to ${ADMIN_EMAIL} for order #${order.id}`);
-        }
-    } catch (error) {
-        console.log('❌ Email error:', error.message);
-    }
+// ====================== ORDER CLEANUP (every hour) ======================
+function deleteOldOrders() {
+  const now = Date.now();
+  const beforeCount = orders.length;
+  orders = orders.filter(order => {
+    const age = now - new Date(order.createdAt).getTime();
+    return age < ORDER_TTL_MS;
+  });
+  const removed = beforeCount - orders.length;
+  if (removed > 0) {
+    console.log(`🧹 Cleaned up ${removed} old order(s) (>24h). ${orders.length} order(s) remaining.`);
+  }
+}
+// Run cleanup every hour
+setInterval(deleteOldOrders, 60 * 60 * 1000);
+// Also run on startup
+deleteOldOrders();
+
+// ====================== RESEND EMAIL (optional) ======================
+let resend;
+if (RESEND_API_KEY && RESEND_API_KEY !== 'your_resend_api_key_here') {
+  resend = new Resend(RESEND_API_KEY);
+  console.log('📧 Resend email service initialized');
+} else {
+  console.log('⚠️  Resend API key missing – email notifications disabled');
 }
 
-// ========== API ENDPOINTS ==========
+async function sendOrderNotification(order) {
+  if (!resend) return;
 
-app.get('/api/orders', (req, res) => {
-    res.json(orders);
-});
+  // Build HTML email
+  const items = order.cartItems || [];
+  let itemsHtml = '';
+  let total = 0;
+  items.forEach(item => {
+    const subtotal = item.price * item.quantity;
+    total += subtotal;
+    itemsHtml += `
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #ddd;">${item.name}</td>
+        <td style="padding:8px; text-align:center;">${item.quantity}</td>
+        <td style="padding:8px; text-align:right;">$${item.price.toFixed(2)}</td>
+        <td style="padding:8px; text-align:right;">$${subtotal.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+  if (items.length === 0 && order.amount) {
+    total = order.amount;
+    itemsHtml = `<tr><td colspan="4">${order.product || 'Order'}</td></tr>`;
+  }
 
-app.get('/api/order/:id', (req, res) => {
-    const order = orders.find(o => o.id === req.params.id);
-    if (order) {
-        res.json(order);
-    } else {
-        res.status(404).json({ error: 'Order not found' });
-    }
-});
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head><style>body{font-family:Inter, Arial;}</style></head>
+    <body>
+      <div style="background:linear-gradient(135deg,#00d4ff,#7c3aed); padding:20px; text-align:center; color:white;">
+        <h2>🛒 New Order Received!</h2>
+        <p>GadgetGalaxy</p>
+      </div>
+      <div style="padding:20px">
+        <h3>Order #${order.id}</h3>
+        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+        <p><strong>Payment:</strong> ${order.paymentMethod}</p>
+        <p><strong>Customer:</strong> ${order.customerEmail}</p>
+        ${order.airtmUsername ? `<p><strong>Airtm Username:</strong> ${order.airtmUsername}</p>` : ''}
+        <h4>📦 Items</h4>
+        <table style="width:100%; border-collapse:collapse;">
+          <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
+          <tbody>${itemsHtml}</tbody>
+          <tfoot><tr><td colspan="3"><strong>Total</strong></td><td><strong>$${total.toFixed(2)}</strong></td></tr></tfoot>
+        </table>
+        <h4>📍 Shipping</h4>
+        <p>${order.shipping?.firstName} ${order.shipping?.lastName}<br>
+        ${order.shipping?.address}<br>${order.shipping?.city}, ${order.shipping?.state} ${order.shipping?.zip}<br>
+        ${order.shipping?.country}<br>📞 ${order.shipping?.phone}</p>
+        ${order.cardDetails ? `<h4>💳 Card (POS)</h4><p>****${order.cardDetails.cardNumber?.slice(-4)}<br>Expiry ${order.cardDetails.expiry}<br>${order.cardDetails.cardholderName}</p>` : ''}
+      </div>
+    </body>
+    </html>
+  `;
 
-app.post('/api/order', async (req, res) => {
-    const order = { 
-        id: Date.now().toString(), 
-        ...req.body, 
-        createdAt: new Date().toISOString(),
-        status: 'pending'
-    };
-    
-    orders.push(order);
-    
-    console.log('\n========== NEW ORDER ==========');
-    console.log(`Order ID: ${order.id}`);
-    console.log(`Payment: ${order.paymentMethod}`);
-    console.log(`Customer: ${order.customerEmail}`);
-    console.log(`Total: $${order.totalAmount || order.amount || 0}`);
-    
-    // Send email notification
-    await sendOrderNotification(order);
-    
-    console.log('================================\n');
-    
-    res.json({ success: true, orderId: order.id });
-});
-
-app.delete('/api/order/:id', (req, res) => {
-    const index = orders.findIndex(o => o.id === req.params.id);
-    if (index !== -1) {
-        const deleted = orders.splice(index, 1);
-        res.json({ success: true, deleted: deleted[0] });
-    } else {
-        res.status(404).json({ error: 'Order not found' });
-    }
-});
-
-app.get('/', (req, res) => {
-    res.json({
-        name: 'GadgetGalaxy API',
-        status: 'running',
-        emailTo: ADMIN_EMAIL,
-        message: 'Using Resend for email notifications'
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      subject: `🛒 New Order #${order.id} - $${total.toFixed(2)}`,
+      html: emailHtml
     });
+    console.log(`📧 Email sent for order #${order.id}`);
+  } catch (err) {
+    console.error(`❌ Email failed for #${order.id}:`, err.message);
+  }
+}
+
+// ====================== API ENDPOINTS ======================
+
+// Get all orders (non‑expired ones)
+app.get('/api/orders', (req, res) => {
+  // Sort by newest first
+  const sorted = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json(sorted);
 });
 
+// Get single order
+app.get('/api/order/:id', (req, res) => {
+  const order = orders.find(o => o.id === req.params.id);
+  if (order) return res.json(order);
+  res.status(404).json({ error: 'Order not found' });
+});
+
+// Create new order (with automatic 24h expiration)
+app.post('/api/order', async (req, res) => {
+  const newOrder = {
+    id: Date.now().toString(),               // simple unique ID
+    createdAt: new Date().toISOString(),
+    ...req.body,
+    status: 'pending'
+  };
+  orders.push(newOrder);
+  console.log(`\n✅ NEW ORDER #${newOrder.id} | Total: $${newOrder.totalAmount || newOrder.amount || 0} | Payment: ${newOrder.paymentMethod}`);
+
+  // Send email notification (non-blocking)
+  sendOrderNotification(newOrder).catch(console.error);
+
+  res.status(201).json({ success: true, orderId: newOrder.id });
+});
+
+// Delete an order (manual removal)
+app.delete('/api/order/:id', (req, res) => {
+  const index = orders.findIndex(o => o.id === req.params.id);
+  if (index !== -1) {
+    const removed = orders.splice(index, 1);
+    res.json({ success: true, deleted: removed[0] });
+  } else {
+    res.status(404).json({ error: 'Order not found' });
+  }
+});
+
+// Health check / info
+app.get('/', (req, res) => {
+  res.json({
+    name: 'GadgetGalaxy Order API',
+    status: 'running',
+    ordersStored: orders.length,
+    retentionHours: 24,
+    cleanupInterval: '1 hour',
+    emailTo: ADMIN_EMAIL
+  });
+});
+
+// ====================== START SERVER ======================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📧 Email notifications to: ${ADMIN_EMAIL}`);
-    console.log(`✅ Using Resend API - SMTP ports not needed!`);
+  console.log(`\n🚀 Server running on port ${PORT}`);
+  console.log(`📦 Orders will be automatically deleted after 24 hours`);
+  console.log(`🧹 Cleanup runs every hour (${orders.length} orders currently stored)`);
+  console.log(`📧 Admin email: ${ADMIN_EMAIL}`);
 });
