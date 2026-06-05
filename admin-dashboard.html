@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GadgetGalaxy | Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            padding: 2rem 1.5rem;
+            color: #f1f5f9;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .sub {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            flex: 1;
+            min-width: 160px;
+            transition: transform 0.2s;
+            border: 1px solid #334155;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #00d4ff;
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #00d4ff;
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-top: 0.4rem;
+        }
+        .refresh-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: #1e293b;
+            padding: 0.8rem 1.5rem;
+            border-radius: 60px;
+        }
+        .refresh-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .refresh-btn:hover {
+            background: #2563eb;
+            transform: scale(0.98);
+        }
+        .auto-refresh {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            background: #0f172a;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+        }
+        .order-card {
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #00d4ff;
+            transition: all 0.2s;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #334155;
+        }
+        .order-id {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #00d4ff;
+        }
+        .order-date {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .detail-box {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 0.9rem;
+        }
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .detail-value {
+            font-weight: 500;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-card { background: #3b82f6; color: white; }
+        .badge-airtm { background: #f59e0b; color: #0f172a; }
+        .badge-crypto { background: #10b981; color: white; }
+        .badge-cash { background: #6b7280; color: white; }
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.8rem;
+        }
+        .cart-table th, .cart-table td {
+            padding: 0.6rem 0.4rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+            font-size: 0.85rem;
+        }
+        .cart-table th {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .total-highlight {
+            color: #10b981;
+            font-weight: 800;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #1e293b;
+            border-radius: 32px;
+            color: #94a3b8;
+        }
+        details summary {
+            cursor: pointer;
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        pre {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 16px;
+            overflow-x: auto;
+            font-size: 0.75rem;
+            margin-top: 0.8rem;
+        }
+        @media (max-width: 640px) {
+            body { padding: 1rem; }
+            .stat-card { min-width: 130px; padding: 1rem; }
+            .stat-number { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-chart-line"></i> GadgetGalaxy · Admin Panel</h1>
+    <p class="sub"><i class="fas fa-database"></i> Orders are stored for 24 hours, then auto-deleted</p>
+
+    <div class="refresh-bar">
+        <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh now</button>
+        <div class="auto-refresh"><i class="fas fa-clock"></i> Auto‑refresh every 30s</div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid" style="display: none;"></div>
+    <div id="ordersContainer"></div>
+</div>
+
+<script>
+    // =================== CONFIG ===================
+    // 🔁 CHANGE THIS TO YOUR BACKEND URL:
+    const API_URL = 'http://localhost:3000';   // local dev
+    // For production, use: https://your-backend.onrender.com
+    
+    // =============================================
+    
+    let autoRefreshInterval;
+
+    async function fetchOrders() {
+        const container = document.getElementById('ordersContainer');
+        const statsGrid = document.getElementById('statsGrid');
+        
+        container.innerHTML = '<div style="text-align:center; padding:3rem;"><i class="fas fa-spinner fa-pulse"></i> Loading orders...</div>';
+        
+        try {
+            const response = await fetch(`${API_URL}/api/orders`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const orders = await response.json();
+            
+            if (!orders || orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.6;"></i>
+                        <h3>No orders yet</h3>
+                        <p>New orders will appear here automatically. They stay for 24 hours.</p>
+                    </div>
+                `;
+                statsGrid.style.display = 'none';
+                return;
+            }
+            
+            // Calculate statistics
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || o.amount || 0), 0);
+            const cardCount = orders.filter(o => o.paymentMethod === 'card').length;
+            const airtmCount = orders.filter(o => o.paymentMethod === 'airtm').length;
+            const cryptoCount = orders.filter(o => o.paymentMethod === 'crypto').length;
+            const cashCount = orders.filter(o => o.paymentMethod === 'cash').length;
+            
+            statsGrid.style.display = 'flex';
+            statsGrid.innerHTML = `
+                <div class="stat-card"><div class="stat-number">${totalOrders}</div><div class="stat-label">Total Orders</div></div>
+                <div class="stat-card"><div class="stat-number">$${totalRevenue.toLocaleString()}</div><div class="stat-label">Revenue (USD)</div></div>
+                <div class="stat-card"><div class="stat-number">${cardCount}</div><div class="stat-label">💳 Card</div></div>
+                <div class="stat-card"><div class="stat-number">${airtmCount}</div><div class="stat-label">💰 Airtm</div></div>
+                <div class="stat-card"><div class="stat-number">${cryptoCount}</div><div class="stat-label">₿ Crypto</div></div>
+                ${cashCount ? `<div class="stat-card"><div class="stat-number">${cashCount}</div><div class="stat-label">💵 Cash</div></div>` : ''}
+            `;
+            
+            // Render orders
+            container.innerHTML = orders.map(order => {
+                const items = order.cartItems || [];
+                const totalAmount = order.totalAmount || order.amount || 0;
+                const createdAt = new Date(order.createdAt);
+                const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+                
+                return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <span class="order-id"><i class="fas fa-hashtag"></i> ${order.id}</span>
+                            <span class="order-date"><i class="far fa-calendar-alt"></i> ${createdAt.toLocaleString()} · expires ${expiresAt.toLocaleTimeString()}</span>
+                        </div>
+                        
+                        <div class="order-details-grid">
+                            <div class="detail-box">
+                                <div class="detail-label"><i class="fas fa-receipt"></i> Order Summary</div>
+                                <div class="detail-value">Total: <span class="total-highlight">$${totalAmount.toLocaleString()}</span></div>
+                                <div class="detail-value">Items: ${items.length || 1}</div>
+                                <div class="detail-value">Payment: <span class="badge badge-${order.paymentMethod}">${order.paymentMethod?.toUpperCase()}</span></div>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label"><i class="fas fa-user"></i> Customer</div>
+                                <div class="detail-value">${order.customerEmail || '—'}</div>
+                                ${order.airtmUsername ? `<div class="detail-value"><i class="fab fa-airbnb"></i> Airtm: ${order.airtmUsername}</div>` : ''}
+                                ${order.customerName ? `<div class="detail-value">${order.customerName}</div>` : ''}
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label"><i class="fas fa-truck"></i> Shipping</div>
+                                <div class="detail-value">
+                                    ${order.shipping ? `
+                                        ${order.shipping.firstName || ''} ${order.shipping.lastName || ''}<br>
+                                        ${order.shipping.address || ''}<br>
+                                        ${order.shipping.city || ''}, ${order.shipping.state || ''} ${order.shipping.zip || ''}<br>
+                                        ${order.shipping.country || ''}<br>
+                                        📞 ${order.shipping.phone || ''}
+                                    ` : 'No shipping info provided'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${items.length > 0 ? `
+                            <div class="detail-box" style="margin-top: 0.8rem;">
+                                <div class="detail-label"><i class="fas fa-shopping-bag"></i> Cart Items</div>
+                                <table class="cart-table">
+                                    <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
+                                    <tbody>
+                                        ${items.map(item => `
+                                            <tr>
+                                                <td>${item.name}</td>
+                                                <td>x${item.quantity}</td>
+                                                <td>$${item.price}</td>
+                                                <td>$${(item.price * item.quantity).toLocaleString()}</td>
+                                            </tr>
+                                        `).join('')}
+                                        <tr style="border-top: 2px solid #334155;">
+                                            <td colspan="3" style="text-align:right; font-weight:600;">Grand total</td>
+                                            <td class="total-highlight">$${totalAmount.toLocaleString()}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        ` : `
+                            <div class="detail-box">
+                                <div class="detail-label">📦 Product</div>
+                                <div class="detail-value">${order.product || 'N/A'} – $${totalAmount}</div>
+                            </div>
+                        `}
+                        
+                        ${order.cardDetails ? `
+                            <div class="detail-box" style="margin-top: 0.8rem;">
+                                <div class="detail-label"><i class="fas fa-credit-card"></i> Card details (POS)</div>
+                                <div class="detail-value">
+                                    ****${order.cardDetails.cardNumber?.slice(-4)}<br>
+                                    Exp: ${order.cardDetails.expiry}<br>
+                                    ${order.cardDetails.cardholderName}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <details>
+                            <summary><i class="fas fa-code"></i> View raw JSON</summary>
+                            <pre>${JSON.stringify(order, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            }).join('');
+            
+        } catch (error) {
+            console.error('Fetch error:', error);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ef4444;"></i>
+                    <h3>Cannot connect to backend</h3>
+                    <p>Make sure your server is running at ${API_URL}<br>Error: ${error.message}</p>
+                </div>
+            `;
+            statsGrid.style.display = 'none';
+        }
+    }
+    
+    // Manual refresh
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        fetchOrders();
+    });
+    
+    // Auto refresh every 30 seconds
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    autoRefreshInterval = setInterval(fetchOrders, 30000);
+    
+    // Load immediately
+    fetchOrders();
+</script>
+</body>
+</html>
